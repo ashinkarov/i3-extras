@@ -1,15 +1,15 @@
 i3-extras
 =========
 
-I am a big fan of [i3 window manage](ihttp://www.i3wm.org/) -- it is fast, it
-has minimalistic design, and if you add couple of simple tools and scripts it
-really replaces any complex desktop environment.  The main purpose of this
-repository is to gather such tools and share it with other i3 users.
+I am a big fan of [i3 window manager](http://www.i3wm.org/) -- it is fast, it
+has a minimalistic design, and if you add a couple of simple tools and scripts it
+really replaces complex desktop environments.  The main purpose of this
+repository is to gather such a tools and share it with other i3 users.
 
 Also, Michael has very strong opinions about the amount of features and
-functions that i3 should have.  Well, that's his baby, however I do not share
+functions that i3 should have.  Well, that's his baby, however, I do not share
 that strictness.  Having said that, I would also like to have a collection of
-patches which work, but which will be never merged due to political reasons.
+patches which work, but which will be never merged due to the ideological reasons.
 
 Further down I will describe the extras that I am using right now, and I hope to
 get some more stuff from you guys!
@@ -23,7 +23,7 @@ the i3bar.  The patch adds two fields to the IPC protocol of i3bar which are:
 
 Here is a picture how it looks like:
 
-![Image](https://github.com/ashinkarov/i3-extas/pictures/xbm-icons.png?raw=true "Example of xbm icons")
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/xbm-icons.png?raw=true "Example of xbm icons")
 
 Here is a [configuration file](https://github.com/ashinkarov/dotfiles/blob/master/i3/i3conky)
 for [conky](http://conky.sourceforge.net/) in order to produce the picture
@@ -47,7 +47,7 @@ geometry and it uses [dzen2](https://github.com/robm/dzen) to draw a menu.
 
 Here is a picture of how it looks like:
 
-![Image](https://github.com/ashinkarov/i3-extas/pictures/i3-exit.png?raw=true "Example of i3-exit script")
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3-exit.png?raw=true "Example of i3-exit script")
 
 TODO
 ----
@@ -68,6 +68,6 @@ your monitor.  Very nice.
 
 Here is a picture of how it looks like:
 
-![Image](https://github.com/ashinkarov/i3-extas/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
 
 
