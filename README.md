@@ -29,8 +29,7 @@ Here is a [configuration file](https://github.com/ashinkarov/dotfiles/blob/maste
 for [conky](http://conky.sourceforge.net/) in order to produce the picture
 from above.
 
-TODO
-----
+### TODO
  * Xlib has a function to draw xbm, but it didn't work for me, so I am
    using something like putpixel to draw the pixels of the parsed image.
  * Caching.  Currently the pictures are parsed every time the status changes,
@@ -49,8 +48,7 @@ Here is a picture of how it looks like:
 
 ![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3-exit.png?raw=true "Example of i3-exit script")
 
-TODO
-----
+### TODO
  * Sometimes the keys does not go to the application.  Don't really know why.
    It might be a problem of dzen2 itself, it might be the case that i3
    switches the focus as the mouse cursor is not on the window.  Don't know.
@@ -59,7 +57,7 @@ TODO
 Wrapper around i3lock
 =====================
 
-This is a very simple script that uses [i3lock](http://i3wm.org/i3lock/) and 
+The `i3lock-wrapper` is a very simple shell script that uses [i3lock](http://i3wm.org/i3lock/) and 
 [imagemagick](http://www.imagemagick.org/script/index.php) to grab a
 screenshot, blur it and launch i3lock with it.  The blurring constant is chosen
 in such a way to hide the text, but leave the overall structure of windows etc.
