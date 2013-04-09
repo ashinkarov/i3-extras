@@ -31,11 +31,11 @@ from above.
 
 TODO
 ----
-    * Xlib has a function to draw xbm, but it didn't work for me, so I am
-      using something like putpixel to draw the pixels of the parsed image.
-    * Caching.  Currently the pictures are parsed every time the status changes,
-      which is every second or so.  It doesn't waste a lot of CPU, however a
-      tiny hash-table would be much cleaner.
+ * Xlib has a function to draw xbm, but it didn't work for me, so I am
+   using something like putpixel to draw the pixels of the parsed image.
+ * Caching.  Currently the pictures are parsed every time the status changes,
+   which is every second or so.  It doesn't waste a lot of CPU, however a
+   tiny hash-table would be much cleaner.
 
 Nagbar replacement
 ==================
@@ -51,9 +51,9 @@ Here is a picture of how it looks like:
 
 TODO
 ----
-    * Sometimes the keys does not go to the application.  Don't really know why.
-      It might be a problem of dzen2 itself, it might be the case that i3
-      switches the focus as the mouse cursor is not on the window.  Don't know.
+ * Sometimes the keys does not go to the application.  Don't really know why.
+   It might be a problem of dzen2 itself, it might be the case that i3
+   switches the focus as the mouse cursor is not on the window.  Don't know.
 
 
 Wrapper around i3lock
