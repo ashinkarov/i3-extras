@@ -66,7 +66,7 @@ Here is a picture of how it looks like:
 Nagbar replacement (i3-exit) [2]
 ================================
 Here is [another version of i3-exit] (http://github.com/uranix/i3-settings/blob/master/i3-exit)
-created by [Ivan Tsybulin](https://github.com/uranix)[2^.  He uses `pygtk` with
+created by [Ivan Tsybulin](https://github.com/uranix).  He uses `pygtk` with
 buttons and have much more sophisticated choices than I do.
 
 
@@ -105,8 +105,7 @@ Another implementation can be found in
 [slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
 repository.
 
-TODO
-----
+### TODO
  * Unicode characters are not rendered properly.  Probably it has something to do
    with the encoding that `dmenu` expects.
 
@@ -118,7 +117,7 @@ you can find a script called `wsbar.py` which replaces an original `wsbar` from 
 The main difference -- this script is written in Python.
 
 
-[2^Status for i3+dzen2 [1]
+Status for i3+dzen2 [1]
 =======================
 
 [gpix13](https://github.com/gpix13) Wrote a shell script to generate the status bar.  He uses
@@ -126,8 +125,7 @@ The main difference -- this script is written in Python.
 
 ![ScreenShot](https://raw.github.com/gpix13/i3/master/bar_screenshot.png)
 
-TODO
-----
+### TODO
  * Here is a general problem with `dzen` -- it doesn't have a support for
    tray.  So the alternatives are either to show dzen and i3bar, which is
    a waste of space, or using something else for tray.
