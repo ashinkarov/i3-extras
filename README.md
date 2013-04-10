@@ -133,7 +133,7 @@ Status for i3+dzen2 [1]
    faster?
 
 
-Status for i3+dzen2 [1]
+Status for i3+dzen2 [2]
 =======================
 [Wang Chao](https://github.com/yueyoum) has another implementation of the status
 information piped through dzen. Her is an
