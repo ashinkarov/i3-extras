@@ -14,11 +14,10 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+file1=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
+file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 
-file=$(mktemp)
-file1="${file}1.png"
-file2="${file}2.png"
-
-scrot "$file1"
+scrot -d0 "$file1"
 convert "$file1" -blur 0x3 "$file2"
 i3lock -i "$file2"
+rm "$file1" "$file2"
