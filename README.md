@@ -69,3 +69,28 @@ Here is a picture of how it looks like:
 ![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
 
 
+Switching windows
+=================
+
+There are two scripts doing a very similar task -- list all the windows, pipe it
+through `dmenu`, focus the selected one.  One implementation can be found in 
+[Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/) 
+repository.  The script is called `winmenu.py`.
+
+Another implementation can be found in 
+[slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
+repository.
+
+TODO
+----
+ * Unicode characters are not rendered properly.  Probably it has something to do
+   with the encoding that `dmenu` expects.
+
+
+wsbar replacement
+=================
+In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/) 
+you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
+The main difference -- this script is written in Python.
+
+
