@@ -18,7 +18,7 @@ get some more stuff from you guys!
 Title of the focused window
 ===========================
 
-This is an 
+This is an
 [ancient patch from Kevin Murphy](http://infra.in.zekjur.net/pipermail/i3-discuss/2012-November/001040.html)
 that was never accepted to the main line.  I didn't had a chance to test if it
 still works, but I like the idea.
@@ -28,8 +28,8 @@ Icons in i3bar
 ==============
 
 The file `i3bar-xbm-icons.patch` is a patch that adds a support for xbm icons to
-the i3bar.  The patch adds two fields to the IPC protocol of i3bar which are: 
-`icon` and `icon_color`. 
+the i3bar.  The patch adds two fields to the IPC protocol of i3bar which are:
+`icon` and `icon_color`.
 
 Here is a picture how it looks like:
 
@@ -58,7 +58,7 @@ Nagbar replacement (i3-exit) [1]
 ================================
 
 The file `i3-exit` is a python script that throws a simple menu in the middle of
-the active workspace which allows you to chose your action on exit.  It uses 
+the active workspace which allows you to chose your action on exit.  It uses
 [i3-py](https://github.com/ziberna/i3-py) to find out an active space and
 geometry and it uses [dzen2](https://github.com/robm/dzen) to draw a menu.
 
@@ -81,7 +81,7 @@ buttons and have much more sophisticated choices than I do.
 Wrapper around i3lock
 =====================
 
-The `i3lock-wrapper` is a very simple shell script that uses [i3lock](http://i3wm.org/i3lock/) and 
+The `i3lock-wrapper` is a very simple shell script that uses [i3lock](http://i3wm.org/i3lock/) and
 [imagemagick](http://www.imagemagick.org/script/index.php) to grab a
 screenshot, blur it and launch i3lock with it.  The blurring constant is chosen
 in such a way to hide the text, but leave the overall structure of windows etc.
@@ -105,11 +105,11 @@ Switching windows
 =================
 
 There are two scripts doing a very similar task -- list all the windows, pipe it
-through `dmenu`, focus the selected one.  One implementation can be found in 
-[Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/) 
+through `dmenu`, focus the selected one.  One implementation can be found in
+[Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
 repository.  The script is called `winmenu.py`.
 
-Another implementation can be found in 
+Another implementation can be found in
 [slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
 repository.
 
@@ -120,7 +120,7 @@ repository.
 
 wsbar replacement
 =================
-In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/) 
+In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
 you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
 The main difference -- this script is written in Python.
 
@@ -152,7 +152,7 @@ massaging.  Finally dzen is displaying the output.  Here is how it looks like:
 
 ![i3-dzen-bridge-1](http://i1297.photobucket.com/albums/ag23/yueyoum/dzen2-s_zps6c50c408.png)
 
-He also has a very nice icons which you can hopefully steal from 
+He also has a very nice icons which you can hopefully steal from
 [here](https://github.com/yueyoum/i3-dzen2-bridge/tree/master/xbm-icons) :)
 
 Vim syntax for i3 config
@@ -174,7 +174,7 @@ Patches for size, borders, cwd
 borders, i3bar and window header sizes and use extract cwd from focused window.
 [Here](https://github.com/0x2493/i3-patches) is a repository with patches.
 Some details:
- * [`cwd-exec`](https://github.com/0x2493/i3-patches/blob/master/4.4/cwd-exec.patch) 
+ * [`cwd-exec`](https://github.com/0x2493/i3-patches/blob/master/4.4/cwd-exec.patch)
    extracts current working directory from the focused window before spawning
    the child.  That would allow to have smarter `Mod + return`, which may open a
    new terminal with cwd taken from the old one.
