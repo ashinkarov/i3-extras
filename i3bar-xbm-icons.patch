@@ -1,4 +1,4 @@
-From 0a4e3a3c2adc27de66523458f3e9abe9d5a15994 Mon Sep 17 00:00:00 2001
+From f8f9bacb271034cda13ced66cf15a1d8f396fded Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
 Date: Tue, 19 Feb 2013 20:25:33 +0000
 Subject: [PATCH] Supporting *.xbm icons in i3bar.
@@ -12,14 +12,22 @@ file, and the icon_color -- colour to use when drawing the icon.
 
 XBM file parsing is written by hands, as Xlib implementation is not
 that easy to integrate in the xcb environment.
+
+People who contributed:
+
+    * Artem Shinkarov
+      Original patch.
+
+    * woho (https://github.com/woho)
+      Fixed icon coloring problem on Arch Linux.
 ---
  common.mk                 |   2 +
  i3bar/include/common.h    |   4 +
  i3bar/include/xbm_image.h |  14 +++
  i3bar/src/child.c         |  11 ++
  i3bar/src/xbm_image.c     | 278 ++++++++++++++++++++++++++++++++++++++++++++++
- i3bar/src/xcb.c           |  43 ++++++-
- 6 files changed, 349 insertions(+), 3 deletions(-)
+ i3bar/src/xcb.c           |  44 +++++++-
+ 6 files changed, 350 insertions(+), 3 deletions(-)
  create mode 100644 i3bar/include/xbm_image.h
  create mode 100644 i3bar/src/xbm_image.c
 
@@ -394,7 +402,7 @@ index 0000000..ea99ffa
 +}
 +#endif
 diff --git a/i3bar/src/xcb.c b/i3bar/src/xcb.c
-index 69cd810..32fdf7c 100644
+index 15c68a0..9c24df1 100644
 --- a/i3bar/src/xcb.c
 +++ b/i3bar/src/xcb.c
 @@ -10,6 +10,7 @@
@@ -405,7 +413,7 @@ index 69cd810..32fdf7c 100644
  
  #ifdef XCB_COMPAT
  #include "xcb_compat.h"
-@@ -123,7 +124,7 @@ void refresh_statusline(void) {
+@@ -126,7 +127,7 @@ void refresh_statusline(void) {
  
      /* Predict the text width of all blocks (in pixels). */
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -414,7 +422,7 @@ index 69cd810..32fdf7c 100644
              continue;
  
          block->width = predict_text_width(block->full_text);
-@@ -153,6 +154,10 @@ void refresh_statusline(void) {
+@@ -156,6 +157,10 @@ void refresh_statusline(void) {
              block->width += block->sep_block_width;
  
          statusline_width += block->width + block->x_offset + block->x_append;
@@ -425,7 +433,7 @@ index 69cd810..32fdf7c 100644
      }
  
      /* If the statusline is bigger than our screen we need to make sure that
-@@ -168,12 +173,44 @@ void refresh_statusline(void) {
+@@ -171,12 +176,45 @@ void refresh_statusline(void) {
      /* Draw the text of each block. */
      uint32_t x = 0;
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -451,14 +459,15 @@ index 69cd810..32fdf7c 100644
 +                    xcb_image_put_pixel (img, j, i, p);
 +                }
 +
-+            if (block->icon_color)
-+                set_font_colors(statusline_ctx,
-+                                get_colorpixel(block->icon_color),
-+                                colors.bar_bg);
-+            else
-+                set_font_colors(statusline_ctx,
-+                                colors.bar_fg,
-+                                colors.bar_bg);
++            uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND;
++            if (block->icon_color) {
++                uint32_t values[] = { get_colorpixel(block->icon_color), colors.bar_bg };
++                xcb_change_gc(xcb_connection, statusline_ctx, mask, values);
++            } else {
++                uint32_t values[] = { colors.bar_fg, colors.bar_bg };
++                xcb_change_gc(xcb_connection, statusline_ctx, mask, values);
++            }
++
 +            xcb_image_put (conn, statusline_pm, statusline_ctx,
 +                           img, x, (font.height - block->icon->height)/2, 0);
 +            xcb_image_destroy (img);
@@ -473,5 +482,5 @@ index 69cd810..32fdf7c 100644
  
          if (TAILQ_NEXT(block, blocks) != NULL && !block->no_separator && block->sep_block_width > 0) {
 -- 
-1.8.1.5
+1.8.4.3
 

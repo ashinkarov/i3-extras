@@ -46,6 +46,14 @@ from above.
    which is every second or so.  It doesn't waste a lot of CPU, however a
    tiny hash-table would be much cleaner.
 
+Higher optimisation level
+=========================
+
+The `makefile-gcc-opt.patch` increases default optimisation level.  This patch
+assumes that you are going to use GCC compiler, however it should work with
+`icc -gcc` and with `clang` as well.
+
+
 Nagbar replacement (i3-exit) [1]
 ================================
 
