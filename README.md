@@ -124,6 +124,23 @@ In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/ex
 you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
 The main difference -- this script is written in Python.
 
+i3bar replacement
+=================
+[lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
+functionality of i3statys.  It has transparency by default, confiuration is set via config file.
+The project in its early stages but is being actively developed.  Here is a default 
+liefbar screenshot:
+
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
+
+
+Scripts for i3bar/i3status
+==========================
+[enkore](https://github.com/enkore) is maintaining a python framework called [pyi3status](https://github.com/enkore/i3pystatus) that allows configure an output that can be
+piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
+for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
+imported later in the output-generator.
+
 
 Status for i3+dzen2 [1]
 =======================
