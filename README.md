@@ -4,12 +4,12 @@ i3-extras
 I am a big fan of [i3 window manager](http://www.i3wm.org/) -- it is fast, it
 has a minimalistic design, and if you add a couple of simple tools and scripts it
 really replaces complex desktop environments.  The main purpose of this
-repository is to gather such a tools and share it with other i3 users.
+repository is to gather such tools and share it with other i3 users.
 
 Also, Michael has very strong opinions about the amount of features and
 functions that i3 should have.  Well, that's his baby, however, I do not share
 that strictness.  Having said that, I would also like to have a collection of
-patches which work, but which will be never merged due to the ideological reasons.
+patches which work, but which will be never merged due to ideological reasons.
 
 Further down I will describe the extras that I am using right now, and I hope to
 get some more stuff from you guys!
@@ -91,6 +91,8 @@ your monitor.  Very nice.
 Here is a picture of how it looks like:
 
 ![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
+
+For Arch Linux users here is an [AUR](https://aur.archlinux.org/packages/i3lock-wrapper/) created by Thiago Perrotta.
 
 Centered image in i3lock
 ========================
