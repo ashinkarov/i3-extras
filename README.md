@@ -189,23 +189,23 @@ config and write an autocmd: `autocmd BufEnter *i3/config  setlocal filetype=i3`
 Patches for size, borders, cwd
 ==============================
 
-[0x2493](https://bitbucket.org/0x2493) keeps a set of small patches to customise
+0x2493 kept a set of small patches to customise
 borders, i3bar and window header sizes and use extract cwd from focused window.
-[Here](https://bitbucket.org/0x2493/i3-patches/overview) is a repository with patches.
-Some details (please note there are versions for 4.6 and 4.7, I'll give links for the 
-latest version):
- * [`cwd-exec`](https://bitbucket.org/0x2493/i3-patches/raw/fcfd72ae9face6cf97a35f801aafbb48606fde4f/4.7/cwd-exec.diff)
+He had a repository on github and later moved it on bitbucket and then deleted
+it all, so please find some of his patches stored [locally](https://github.com/ashinkarov/i3-extras/tree/master/0x2493-patches):
+
+ * [`cwd-exec`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/cwd-exec.patch)
    extracts current working directory from the focused window before spawning
    the child.  That would allow to have smarter `Mod + return`, which may open a
    new terminal with cwd taken from the old one.
 
- * [`smart-border`](https://bitbucket.org/0x2493/i3-patches/raw/fcfd72ae9face6cf97a35f801aafbb48606fde4f/4.7/smart-border.diff)
+ * [`smart-border`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/smart-border.patch)
    doesn't draw a border around the window it is the only window on a workspace.
 
- * [`tiny-bar`](https://bitbucket.org/0x2493/i3-patches/raw/fcfd72ae9face6cf97a35f801aafbb48606fde4f/4.7/tiny-bar.diff)
+ * `tiny-bar` _(the link is missing)_
    removes extra spaces around the font in i3bar, which makes the i3bar tinier.
 
- * [`tiny-titles`](https://bitbucket.org/0x2493/i3-patches/raw/fcfd72ae9face6cf97a35f801aafbb48606fde4f/4.7/tiny-titles.diff)
+ * [`tiny-titles`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/tiny-titles.patch)
    removes extra spaces around the font in window titles.
 
 
