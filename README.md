@@ -138,7 +138,7 @@ liefbar screenshot:
 
 Scripts for i3bar/i3status
 ==========================
-[enkore](https://github.com/enkore) is maintaining a python framework called [pyi3status](https://github.com/enkore/i3pystatus) that allows configure an output that can be
+[enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
 piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
 for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
 imported later in the output-generator.
