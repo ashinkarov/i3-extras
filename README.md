@@ -143,6 +143,9 @@ piped into i3bar.  You can do a very similar thing using conky, however here the
 for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
 imported later in the output-generator.
 
+[py3status](https://github.com/ultrabug/py3status) has a similiar name, but uses a different
+approach: It wraps i3status and can add additional functionality through modules. It is maintained
+by [ultrabug](https://github.com/ultrabug).
 
 Status for i3+dzen2 [1]
 =======================
