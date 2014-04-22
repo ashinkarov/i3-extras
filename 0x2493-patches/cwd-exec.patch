@@ -1,0 +1,81 @@
+diff --git a/include/libi3.h b/include/libi3.h
+index 18c6469..e2383a3 100644
+--- a/include/libi3.h
++++ b/include/libi3.h
+@@ -26,6 +26,14 @@
+  * Opaque data structure for storing strings.
+  *
+  */
++
++struct _i3String {
++    char *utf8;
++    xcb_char2b_t *ucs2;
++    size_t num_glyphs;
++    size_t num_bytes;
++};
++
+ typedef struct _i3String i3String;
+ 
+ typedef struct Font i3Font;
+diff --git a/libi3/string.c b/libi3/string.c
+index 009312d..9fd0db4 100644
+--- a/libi3/string.c
++++ b/libi3/string.c
+@@ -15,13 +15,6 @@
+ 
+ #include "libi3.h"
+ 
+-struct _i3String {
+-    char *utf8;
+-    xcb_char2b_t *ucs2;
+-    size_t num_glyphs;
+-    size_t num_bytes;
+-};
+-
+ /*
+  * Build an i3String from an UTF-8 encoded string.
+  * Returns the newly-allocated i3String.
+diff --git a/src/startup.c b/src/startup.c
+index 85e5dbc..082da64 100644
+--- a/src/startup.c
++++ b/src/startup.c
+@@ -18,6 +18,7 @@
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <paths.h>
++#include <libgen.h>
+ 
+ #define SN_API_NOT_YET_FROZEN 1
+ #include <libsn/sn-launcher.h>
+@@ -192,6 +193,31 @@ void start_application(const char *command, bool no_startup_id) {
+             if (!no_startup_id)
+                 sn_launcher_context_setup_child_process(context);
+ 
++            if (focused->window && focused->window->name->utf8) {
++                const char *spawn_cwd_delim = ":";
++                const char *home = getenv("HOME");
++                const size_t homelen = strlen(home);
++                char *cwd, *pathbuf = NULL;
++                struct stat statbuf;
++
++                cwd = strtok(focused->window->name->utf8, spawn_cwd_delim);
++                while (cwd) {
++                    if (*cwd == '~')
++                        if ((pathbuf = malloc(homelen + strlen(cwd)))) {
++                            strcpy(strcpy(pathbuf, home) + homelen, cwd + 1);
++                            cwd = pathbuf;
++                        }
++                    if (strchr(cwd, '/') && !stat(cwd, &statbuf)) {
++                        if (!S_ISDIR(statbuf.st_mode))
++                            cwd = dirname(cwd);
++                        if (!chdir(cwd))
++                            break;
++                    }
++                    cwd = strtok(NULL, spawn_cwd_delim);
++                }
++                free(pathbuf);
++            }
++
+             execl(_PATH_BSHELL, _PATH_BSHELL, "-c", command, (void*)NULL);
+             /* not reached */
+         }

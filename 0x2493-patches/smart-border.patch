@@ -1,0 +1,22 @@
+diff --git a/src/con.c b/src/con.c
+index ad5025a..a275735 100644
+--- a/src/con.c
++++ b/src/con.c
+@@ -1068,6 +1068,17 @@ Con *con_descend_direction(Con *con, direction_t direction) {
+  *
+  */
+ Rect con_border_style_rect(Con *con) {
++    Con *cur = con;
++    while (cur->floating < 2 && cur) {
++        Con *par = cur->parent;
++        if (con_num_children(par) == 1)
++            if (par->type == CT_WORKSPACE)
++                return (Rect){0, 0, 0, 0};
++            else
++                cur = par;
++        else
++            break;
++    }
+     adjacent_t borders_to_hide = ADJ_NONE;
+     int border_width = con->current_border_width;
+     DLOG("The border width for con is set to: %d\n", con->current_border_width);
