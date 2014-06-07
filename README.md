@@ -1,5 +1,5 @@
-i3-extras
-=========
+# i3-extras #
+
 
 I am a big fan of [i3 window manager](http://www.i3wm.org/) -- it is fast, it
 has a minimalistic design, and if you add a couple of simple tools and scripts it
@@ -14,9 +14,16 @@ patches which work, but which will be never merged due to ideological reasons.
 Further down I will describe the extras that I am using right now, and I hope to
 get some more stuff from you guys!
 
+## Table of contents ##
 
-Title of the focused window
-===========================
+- [Patches](patches)
+   - [Title of the focused windows](#title-of-the-focused-windows)
+   - [Icons in i3bar](#icons-in-i3bar)
+   - [Higher optimisation level](#higher-optimisation-level)
+
+##Patches##
+
+###Title of the focused window###
 
 This is an
 [ancient patch from Kevin Murphy](http://infra.in.zekjur.net/pipermail/i3-discuss/2012-November/001040.html)
@@ -24,8 +31,7 @@ that was never accepted to the main line.  I didn't had a chance to test if it
 still works, but I like the idea.
 
 
-Icons in i3bar
-==============
+###Icons in i3bar###
 
 The file `i3bar-xbm-icons.patch` is a patch that adds a support for xbm icons to
 the i3bar.  The patch adds two fields to the IPC protocol of i3bar which are:
@@ -39,15 +45,15 @@ Here is a [configuration file](https://github.com/ashinkarov/dotfiles/blob/maste
 for [conky](http://conky.sourceforge.net/) in order to produce the picture
 from above.
 
-### TODO
+####TODO####
  * Xlib has a function to draw xbm, but it didn't work for me, so I am
    using something like putpixel to draw the pixels of the parsed image.
  * Caching.  Currently the pictures are parsed every time the status changes,
    which is every second or so.  It doesn't waste a lot of CPU, however a
    tiny hash-table would be much cleaner.
 
-Higher optimisation level
-=========================
+###Higher optimisation level###
+
 
 The `makefile-gcc-opt.patch` increases default optimisation level.  This patch
 assumes that you are going to use GCC compiler, however it should work with
