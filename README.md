@@ -34,6 +34,7 @@ get some more stuff from you guys!
    - [Scripts for i3bar/i3status](#user-content-scripts-for-i3bari3status)
    - [Status for i3+dzen2 [1]](#user-content-status-for-i3dzen2-1)
    - [Status for i3+dzen2 [2]](#user-content-status-for-i3dzen2-2)
+   - [i3blocks](#i3blocks)
 - [Vim syntax for i3 config](#user-content-vim-syntax-for-i3-config)
  
 
@@ -224,6 +225,18 @@ massaging.  Finally dzen is displaying the output.  Here is how it looks like:
 He also has a very nice icons which you can hopefully steal from
 [here](https://github.com/yueyoum/i3-dzen2-bridge/tree/master/xbm-icons) :)
 
+
+###i3blocks###
+
+[Vivien Didelot](https://github.com/vivien) maintains the
+[i3blocks project](https://github.com/vivien/i3blocks)
+i3blocks is a highly flexible status line for the i3 window manager. It handles 
+clicks, signals and language-agnostic user scripts.  The content of each block 
+(e.g. time, battery status, network state, ...) is the output of a command provided
+by the user. Blocks are updated on click, at a given interval of time or on a 
+given signal, also specified by the user.  It aims to respect the i3bar protocol,
+providing customization such as text alignment, urgency, color, and more.  See their
+[wiki](https://github.com/vivien/i3blocks/wiki) for more details.
 
 ##Vim syntax for i3 config##
 
