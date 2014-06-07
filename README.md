@@ -20,6 +20,22 @@ get some more stuff from you guys!
    - [Title of the focused windows](#user-content-title-of-the-focused-windows)
    - [Icons in i3bar](#user-content-icons-in-i3bar)
    - [Higher optimisation level](#user-content-higher-optimisation-level)
+   - [Patches for size, borders, cwd](user-content-patches-for-size-borders-cwd)
+- [Nagbar replacements](#user-content-nagbar-replacements)
+   - [Nagbar replacement 1](#user-content-nagbar-replacement-i3-exit-1)
+   - [Nagbar replacement 2](#user-content-nagbar-replacement-i3-exit-2)
+- [`i3lock` related](#user-content-i3lock-related)
+   - [Wrapper around i3lock](#user-content-wrapper-around-i3lock)
+   - [Centered image in i3lock](#user-content-centered-image-in-i3lock)
+- [Switching windows](#user-content-switching-windows)
+- [Status bar related](#user-content-status-bar-related)
+   - [`wsbar` replacement](#user-content-wsbar-replacement)
+   - [`i3bar` replacement](#user-content-i3bar-replacement)
+   - [Scripts for i3bar/i3status](#user-content-scripts-for-i3bari3status)
+   - [Status for i3+dzen2 [1]](#user-content-status-for-i3dzen2-1)
+   - [Status for i3+dzen2 [2]](#user-content-status-for-i3dzen2-2)
+- [Vim syntax for i3 config](#user-content-vim-syntax-for-i3-config)
+ 
 
 ##Patches##
 
@@ -59,144 +75,7 @@ The `makefile-gcc-opt.patch` increases default optimisation level.  This patch
 assumes that you are going to use GCC compiler, however it should work with
 `icc -gcc` and with `clang` as well.
 
-
-Nagbar replacement (i3-exit) [1]
-================================
-
-The file `i3-exit` is a python script that throws a simple menu in the middle of
-the active workspace which allows you to chose your action on exit.  It uses
-[i3-py](https://github.com/ziberna/i3-py) to find out an active space and
-geometry and it uses [dzen2](https://github.com/robm/dzen) to draw a menu.
-
-Here is a picture of how it looks like:
-
-![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3-exit.png?raw=true "Example of i3-exit script")
-
-### TODO
- * Sometimes the keys does not go to the application.  Don't really know why.
-   It might be a problem of dzen2 itself, it might be the case that i3
-   switches the focus as the mouse cursor is not on the window.  Don't know.
-
-Nagbar replacement (i3-exit) [2]
-================================
-Here is [another version of i3-exit] (http://github.com/uranix/i3-settings/blob/master/i3-exit)
-created by [Ivan Tsybulin](https://github.com/uranix).  He uses `pygtk` with
-buttons and have much more sophisticated choices than I do.
-
-
-Wrapper around i3lock
-=====================
-
-The `i3lock-wrapper` is a very simple shell script that uses [i3lock](http://i3wm.org/i3lock/) and
-[imagemagick](http://www.imagemagick.org/script/index.php) to grab a
-screenshot, blur it and launch i3lock with it.  The blurring constant is chosen
-in such a way to hide the text, but leave the overall structure of windows etc.
-If you don't know that it's a screensaver, the first instinct is to configure
-your monitor.  Very nice.
-
-Here is a picture of how it looks like:
-
-![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
-
-For Arch Linux users here is an [AUR](https://aur.archlinux.org/packages/i3lock-wrapper/) created by Thiago Perrotta.
-
-Centered image in i3lock
-========================
-
-[Ivan Tsybulin](https://github.com/uranix) have created a
-[patch](https://github.com/uranix/i3-settings/blob/master/centered_image.patch)
-for i3lock that allows to centre the image of the size smaller than the screen
-resolution.
-
-
-Switching windows
-=================
-
-There are two scripts doing a very similar task -- list all the windows, pipe it
-through `dmenu`, focus the selected one.  One implementation can be found in
-[Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
-repository.  The script is called `winmenu.py`.
-
-Another implementation can be found in
-[slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
-repository.
-
-### TODO
- * Unicode characters are not rendered properly.  Probably it has something to do
-   with the encoding that `dmenu` expects.
-
-
-wsbar replacement
-=================
-In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
-you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
-The main difference -- this script is written in Python.
-
-i3bar replacement
-=================
-[lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
-functionality of i3statys.  It has transparency by default, confiuration is set via config file.
-The project in its early stages but is being actively developed.  Here is a default 
-liefbar screenshot:
-
-![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
-
-
-Scripts for i3bar/i3status
-==========================
-[enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
-piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
-for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
-imported later in the output-generator.
-
-[py3status](https://github.com/ultrabug/py3status) has a similiar name, but uses a different
-approach: It wraps i3status and can add additional functionality through modules. It is maintained
-by [ultrabug](https://github.com/ultrabug).
-
-Status for i3+dzen2 [1]
-=======================
-
-[gpix13](https://github.com/gpix13) Wrote a shell script to generate the status bar.  He uses
-`dzen` to display it.  Here is a screenshot of what the bar produced by status.sh looks like:
-
-![ScreenShot](https://raw.github.com/gpix13/i3/master/bar_screenshot.png)
-
-### TODO
- * Here is a general problem with `dzen` -- it doesn't have a support for
-   tray.  So the alternatives are either to show dzen and i3bar, which is
-   a waste of space, or using something else for tray.
- * Most of the output here, can be obtained from `conky`.  Wouldn't it be
-   faster?
-
-
-Status for i3+dzen2 [2]
-=======================
-[Wang Chao](https://github.com/yueyoum) has another implementation of the status
-information piped through dzen. Her is an
-[implementation](https://github.com/yueyoum/i3-dzen2-bridge).  He uses
-`i3status` to generate the information and the he uses a custom python script
-that parse the output of `i3status`, appends it with icons and does some extra
-massaging.  Finally dzen is displaying the output.  Here is how it looks like:
-
-![i3-dzen-bridge-1](http://i1297.photobucket.com/albums/ag23/yueyoum/dzen2-s_zps6c50c408.png)
-
-He also has a very nice icons which you can hopefully steal from
-[here](https://github.com/yueyoum/i3-dzen2-bridge/tree/master/xbm-icons) :)
-
-Vim syntax for i3 config
-========================
-
-[Emanuel Guével](https://github.com/PotatoesMaster) wrote a syntax file for i3
-config.  Thanks for that, the repository can be found
-[here](https://github.com/PotatoesMaster/i3-vim-syntax).
-
-In order to enable it you can add `# vim:filetype=i3` as a comment to your file,
-or you can do it manually.  Another option is to recognise the path to the i3
-config and write an autocmd: `autocmd BufEnter *i3/config  setlocal filetype=i3`
-
-
-Patches for size, borders, cwd
-==============================
+###Patches for size, borders, cwd###
 
 0x2493 kept a set of small patches to customise
 borders, i3bar and window header sizes and use extract cwd from focused window.
@@ -216,5 +95,146 @@ it all, so please find some of his patches stored [locally](https://github.com/a
 
  * [`tiny-titles`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/tiny-titles.patch)
    removes extra spaces around the font in window titles.
+
+###Window icons###
+[Maris Muja](https://github.com/mariusmuja) wrote a [patch[(https://raw.githubusercontent.com/ashinkarov/i3-extras/master/window-icons/window-icons.patch)
+to draw an application icon in the left corner of the window bar.  _Please have a look at his 
+[i3wm repository](https://github.com/mariusmuja/i3wm/commits/next), you can find some
+more patches there._
+
+##Nagbar replacements##
+
+###Nagbar replacement (i3-exit) [1]###
+
+The file `i3-exit` is a python script that throws a simple menu in the middle of
+the active workspace which allows you to chose your action on exit.  It uses
+[i3-py](https://github.com/ziberna/i3-py) to find out an active space and
+geometry and it uses [dzen2](https://github.com/robm/dzen) to draw a menu.
+
+Here is a picture of how it looks like:
+
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3-exit.png?raw=true "Example of i3-exit script")
+
+#### TODO ####
+ * Sometimes the keys does not go to the application.  Don't really know why.
+   It might be a problem of dzen2 itself, it might be the case that i3
+   switches the focus as the mouse cursor is not on the window.  Don't know.
+
+###Nagbar replacement (i3-exit) [2]###
+
+Here is [another version of i3-exit] (http://github.com/uranix/i3-settings/blob/master/i3-exit)
+created by [Ivan Tsybulin](https://github.com/uranix).  He uses `pygtk` with
+buttons and have much more sophisticated choices than I do.
+
+##`i3lock` related##
+
+###Wrapper around i3lock###
+
+The `i3lock-wrapper` is a very simple shell script that uses [i3lock](http://i3wm.org/i3lock/) and
+[imagemagick](http://www.imagemagick.org/script/index.php) to grab a
+screenshot, blur it and launch i3lock with it.  The blurring constant is chosen
+in such a way to hide the text, but leave the overall structure of windows etc.
+If you don't know that it's a screensaver, the first instinct is to configure
+your monitor.  Very nice.
+
+Here is a picture of how it looks like:
+
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/i3lock-wrapper.png?raw=true "Example of i3lock wrapper")
+
+For Arch Linux users here is an [AUR](https://aur.archlinux.org/packages/i3lock-wrapper/) created by Thiago Perrotta.
+
+###Centered image in i3lock###
+
+[Ivan Tsybulin](https://github.com/uranix) have created a
+[patch](https://github.com/uranix/i3-settings/blob/master/centered_image.patch)
+for i3lock that allows to centre the image of the size smaller than the screen
+resolution.
+
+
+##Switching windows##
+
+There are two scripts doing a very similar task -- list all the windows, pipe it
+through `dmenu`, focus the selected one.  One implementation can be found in
+[Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
+repository.  The script is called `winmenu.py`.
+
+Another implementation can be found in
+[slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
+repository.
+
+### TODO
+ * Unicode characters are not rendered properly.  Probably it has something to do
+   with the encoding that `dmenu` expects.
+
+##Status bar related##
+
+###`wsbar` replacement###
+
+In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/examples/)
+you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
+The main difference -- this script is written in Python.
+
+###`i3bar` replacement###
+
+[lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
+functionality of i3statys.  It has transparency by default, confiuration is set via config file.
+The project in its early stages but is being actively developed.  Here is a default 
+liefbar screenshot:
+
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
+
+
+###Scripts for i3bar/i3status###
+
+[enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
+piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
+for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
+imported later in the output-generator.
+
+[py3status](https://github.com/ultrabug/py3status) has a similiar name, but uses a different
+approach: It wraps i3status and can add additional functionality through modules. It is maintained
+by [ultrabug](https://github.com/ultrabug).
+
+###Status for i3+dzen2 [1]###
+
+[gpix13](https://github.com/gpix13) Wrote a shell script to generate the status bar.  He uses
+`dzen` to display it.  Here is a screenshot of what the bar produced by status.sh looks like:
+
+![ScreenShot](https://raw.github.com/gpix13/i3/master/bar_screenshot.png)
+
+#### TODO
+ * Here is a general problem with `dzen` -- it doesn't have a support for
+   tray.  So the alternatives are either to show dzen and i3bar, which is
+   a waste of space, or using something else for tray.
+ * Most of the output here, can be obtained from `conky`.  Wouldn't it be
+   faster?
+
+
+###Status for i3+dzen2 [2]###
+
+[Wang Chao](https://github.com/yueyoum) has another implementation of the status
+information piped through dzen. Her is an
+[implementation](https://github.com/yueyoum/i3-dzen2-bridge).  He uses
+`i3status` to generate the information and the he uses a custom python script
+that parse the output of `i3status`, appends it with icons and does some extra
+massaging.  Finally dzen is displaying the output.  Here is how it looks like:
+
+![i3-dzen-bridge-1](http://i1297.photobucket.com/albums/ag23/yueyoum/dzen2-s_zps6c50c408.png)
+
+He also has a very nice icons which you can hopefully steal from
+[here](https://github.com/yueyoum/i3-dzen2-bridge/tree/master/xbm-icons) :)
+
+
+##Vim syntax for i3 config##
+
+[Emanuel Guével](https://github.com/PotatoesMaster) wrote a syntax file for i3
+config.  Thanks for that, the repository can be found
+[here](https://github.com/PotatoesMaster/i3-vim-syntax).
+
+In order to enable it you can add `# vim:filetype=i3` as a comment to your file,
+or you can do it manually.  Another option is to recognise the path to the i3
+config and write an autocmd: `autocmd BufEnter *i3/config  setlocal filetype=i3`
+
+
 
 
