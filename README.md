@@ -16,10 +16,10 @@ get some more stuff from you guys!
 
 ## Table of contents ##
 
-- [Patches](patches)
-   - [Title of the focused windows](#title-of-the-focused-windows)
-   - [Icons in i3bar](#icons-in-i3bar)
-   - [Higher optimisation level](#higher-optimisation-level)
+- [Patches](#user-content-patches)
+   - [Title of the focused windows](#user-content-title-of-the-focused-windows)
+   - [Icons in i3bar](#user-content-icons-in-i3bar)
+   - [Higher optimisation level](#user-content-higher-optimisation-level)
 
 ##Patches##
 
