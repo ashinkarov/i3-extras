@@ -1,0 +1,360 @@
+From f0816ebf4e536a41e5f91c0727f21504eb325d41 Mon Sep 17 00:00:00 2001
+From: Marius Muja <mariusm@cs.ubc.ca>
+Date: Wed, 26 Dec 2012 20:37:08 -0800
+Subject: [PATCH] Added support for window icons (_NET_WM_ICON property)
+
+---
+ common.mk            |  7 +++++
+ include/atoms.xmacro |  1 +
+ include/data.h       |  5 ++++
+ include/window.h     |  9 ++++++
+ src/manage.c         | 10 ++++++-
+ src/render.c         |  5 ++++
+ src/tree.c           |  3 ++
+ src/window.c         | 81 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/x.c              | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 198 insertions(+), 1 deletion(-)
+
+diff --git a/common.mk b/common.mk
+index b946206..54ae8b4 100644
+--- a/common.mk
++++ b/common.mk
+@@ -1,6 +1,7 @@
+ UNAME=$(shell uname)
+ DEBUG=1
+ COVERAGE=0
++USE_ICONS=1
+ INSTALL=install
+ LN=ln
+ ifndef PREFIX
+@@ -56,6 +57,9 @@ I3_CPPFLAGS += -DMINOR_VERSION=${MINOR_VERSION}
+ I3_CPPFLAGS += -DPATCH_VERSION=${PATCH_VERSION}
+ I3_CPPFLAGS += -DSYSCONFDIR=\"${SYSCONFDIR}\"
+ I3_CPPFLAGS += -DI3__FILE__=__FILE__
++ifeq ($(USE_ICONS),1)
++I3_CPPFLAGS += -DUSE_ICONS
++endif
+ 
+ 
+ ## Libraries flags
+@@ -104,6 +108,9 @@ XCB_WM_CFLAGS += $(call cflags_for_lib, xcb-randr)
+ XCB_WM_LIBS   := $(call ldflags_for_lib, xcb-icccm,xcb-icccm)
+ XCB_WM_LIBS   += $(call ldflags_for_lib, xcb-xinerama,xcb-xinerama)
+ XCB_WM_LIBS   += $(call ldflags_for_lib, xcb-randr,xcb-randr)
++ifeq ($(USE_ICONS),1)
++XCB_WM_LIBS   += $(call ldflags_for_lib, xcb-image,xcb-image)
++endif
+ 
+ # Xlib
+ X11_CFLAGS := $(call cflags_for_lib, x11)
+diff --git a/include/atoms.xmacro b/include/atoms.xmacro
+index e6e72e7..e472c2a 100644
+--- a/include/atoms.xmacro
++++ b/include/atoms.xmacro
+@@ -17,6 +17,7 @@ xmacro(_NET_CURRENT_DESKTOP)
+ xmacro(_NET_ACTIVE_WINDOW)
+ xmacro(_NET_STARTUP_ID)
+ xmacro(_NET_WORKAREA)
++xmacro(_NET_WM_ICON)
+ xmacro(WM_PROTOCOLS)
+ xmacro(WM_DELETE_WINDOW)
+ xmacro(UTF8_STRING)
+diff --git a/include/data.h b/include/data.h
+index 6fc7b40..d469c87 100644
+--- a/include/data.h
++++ b/include/data.h
+@@ -366,6 +366,11 @@ struct Window {
+ 
+     /** Depth of the window */
+     uint16_t depth;
++
++#ifdef USE_ICONS
++    /** Window icon, array of size 16x16 containing the ARGB pixels */
++    uint32_t* icon;
++#endif
+ };
+ 
+ /**
+diff --git a/include/window.h b/include/window.h
+index 480cee1..04a6841 100644
+--- a/include/window.h
++++ b/include/window.h
+@@ -75,3 +75,12 @@ void window_update_hints(i3Window *win, xcb_get_property_reply_t *prop, bool *ur
+  *
+  */
+ void window_update_motif_hints(i3Window *win, xcb_get_property_reply_t *prop, border_style_t *motif_border_style);
++
++#ifdef USE_ICONS
++/**
++ * Updates the _NET_WM_ICON
++ *
++ */
++void window_update_icon(i3Window *win, xcb_get_property_reply_t *prop);
++
++#endif
+diff --git a/src/manage.c b/src/manage.c
+index d84ba1b..7525020 100644
+--- a/src/manage.c
++++ b/src/manage.c
+@@ -120,7 +120,9 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
+                               class_cookie, leader_cookie, transient_cookie,
+                               role_cookie, startup_id_cookie, wm_hints_cookie,
+                               motif_wm_hints_cookie;
+-
++#ifdef USE_ICONS                              
++    xcb_get_property_cookie_t wm_icon_cookie;
++#endif
+ 
+     geomc = xcb_get_geometry(conn, d);
+ 
+@@ -190,6 +192,9 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
+     startup_id_cookie = GET_PROPERTY(A__NET_STARTUP_ID, 512);
+     wm_hints_cookie = xcb_icccm_get_wm_hints(conn, window);
+     motif_wm_hints_cookie = GET_PROPERTY(A__MOTIF_WM_HINTS, 5 * sizeof(uint64_t));
++#ifdef USE_ICONS
++    wm_icon_cookie = xcb_get_property_unchecked(conn, false, window, A__NET_WM_ICON, XCB_ATOM_CARDINAL, 0, UINT32_MAX);
++#endif
+     /* TODO: also get wm_normal_hints here. implement after we got rid of xcb-event */
+ 
+     DLOG("Managing window 0x%08x\n", window);
+@@ -226,6 +231,9 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
+     window_update_hints(cwindow, xcb_get_property_reply(conn, wm_hints_cookie, NULL), &urgency_hint);
+     border_style_t motif_border_style = BS_NORMAL;
+     window_update_motif_hints(cwindow, xcb_get_property_reply(conn, motif_wm_hints_cookie, NULL), &motif_border_style);
++#ifdef USE_ICONS
++    window_update_icon(cwindow, xcb_get_property_reply(conn, wm_icon_cookie, NULL));
++#endif
+ 
+     xcb_get_property_reply_t *startup_id_reply;
+     startup_id_reply = xcb_get_property_reply(conn, startup_id_cookie, NULL);
+diff --git a/src/render.c b/src/render.c
+index f996d96..a22e9cc 100644
+--- a/src/render.c
++++ b/src/render.c
+@@ -215,6 +215,11 @@ void render_con(Con *con, bool render_fullscreen) {
+ 
+     /* find the height for the decorations */
+     int deco_height = render_deco_height();
++#ifdef USE_ICONS
++    /* minimum decoration height to allow icon to fit
++     * not actuuly required, icon would be cropped otherwise */
++    deco_height = deco_height<16 ? 16 : deco_height;
++#endif
+ 
+     /* precalculate the sizes to be able to correct rounding errors */
+     int sizes[children];
+diff --git a/src/tree.c b/src/tree.c
+index 48ab163..a7b8e64 100644
+--- a/src/tree.c
++++ b/src/tree.c
+@@ -260,6 +260,9 @@ bool tree_close(Con *con, kill_window_t kill_window, bool dont_kill_parent, bool
+         FREE(con->window->class_class);
+         FREE(con->window->class_instance);
+         i3string_free(con->window->name);
++#ifdef USE_ICONS
++        FREE(con->window->icon);
++#endif
+         free(con->window);
+     }
+ 
+diff --git a/src/window.c b/src/window.c
+index c3a35cf..e015a32 100644
+--- a/src/window.c
++++ b/src/window.c
+@@ -310,3 +310,84 @@ void window_update_motif_hints(i3Window *win, xcb_get_property_reply_t *prop, bo
+ #undef MWM_DECOR_BORDER
+ #undef MWM_DECOR_TITLE
+ }
++
++
++#ifdef USE_ICONS
++/*
++ * Copy and resize icon if needed
++ */
++void copy_icon_with_resize(uint32_t *dst, int width, int height, uint32_t* src, int s_width, int s_height)
++{
++    int i, j;
++    if (width==s_width && height==s_height) {
++        /*  easy case, same dimensions, just copy data */
++        memcpy(dst, src, width*height*sizeof(uint32_t));
++    }
++    else {
++        uint32_t* row = src;
++        int xstep = s_width/width;
++        int ystep = s_height/height*s_width;
++
++        for(i=0; i < height; ++i) {
++            uint32_t* ptr = row;
++            for(j=0; j < width; ++j) {
++                *dst++ = *ptr;
++                ptr+=xstep;
++            }
++            row += ystep;
++        }
++    }
++}
++
++
++void window_update_icon(i3Window *win, xcb_get_property_reply_t *prop)
++{
++    uint32_t *data = NULL;
++    uint64_t len = 0;
++
++    if(!prop || prop->type != XCB_ATOM_CARDINAL || prop->format != 32) {
++    		DLOG("_NET_WM_ICON is not set\n");
++        FREE(prop);
++        return;
++    }
++
++    uint32_t prop_value_len = xcb_get_property_value_length(prop);
++    uint32_t *prop_value = (uint32_t *) xcb_get_property_value(prop);
++
++    /* Find the number of icons in the reply. */
++    while(prop_value_len > (sizeof(uint32_t) * 2) && prop_value && prop_value[0] && prop_value[1])
++    {
++    	/* Check that the property is as long as it should be (in bytes),
++         handling integer overflow. "+2" to handle the width and height
++         fields. */
++    	const uint64_t crt_len = prop_value[0] * (uint64_t) prop_value[1];
++    	const uint64_t expected_len = (crt_len + 2) * 4;
++    	if(expected_len > prop_value_len)
++    		break;
++
++    	if (len==0 || (crt_len>=16*16 && crt_len<len)) {
++    		len = crt_len;
++    		data  = prop_value;
++    	}
++    	if (len==16*16) break; // found 16 pixels icon
++
++    	/* Find pointer to next icon in the reply. */
++    	prop_value_len -= expected_len;
++    	prop_value = (uint32_t *) (((uint8_t *) prop_value) + expected_len);
++    }
++
++    if (!data ) {
++    	DLOG("Could not get _NET_WM_ICON\n");
++    	free(prop);
++    	return;
++    }
++
++    LOG("Got _NET_WM_ICON of size: (%d,%d)\n", data[0], data[1]);
++
++    FREE(win->icon);
++    win->icon = malloc(16*16*sizeof(uint32_t));
++    copy_icon_with_resize(win->icon, 16, 16, data+2, data[0], data[1]);
++
++    free(prop);
++}
++#endif /* USE_ICONS */
+diff --git a/src/x.c b/src/x.c
+index b3af85a..ab20ad3 100644
+--- a/src/x.c
++++ b/src/x.c
+@@ -11,6 +11,9 @@
+  *
+  */
+ #include "all.h"
++#ifdef USE_ICONS
++#include <xcb/xcb_image.h>
++#endif
+ 
+ /* Stores the X11 window ID of the currently focused window */
+ xcb_window_t focused_id = XCB_NONE;
+@@ -294,6 +297,44 @@ void x_window_kill(xcb_window_t window, kill_window_t kill_window) {
+     free(event);
+ }
+ 
++#ifdef USE_ICONS
++
++static inline uint32_t pixel_blend(uint32_t d, uint32_t s)
++{
++	const uint32_t a     = (s >> 24) + 1;
++
++	const uint32_t dstrb = d & 0xFF00FF;
++	const uint32_t dstg  = d & 0xFF00;
++
++	const uint32_t srcrb = s & 0xFF00FF;
++	const uint32_t srcg  = s & 0xFF00;
++
++	uint32_t drb = srcrb - dstrb;
++	uint32_t dg  =  srcg - dstg;
++
++	drb *= a;
++	dg  *= a;  
++	drb >>= 8;
++	dg  >>= 8;
++
++	uint32_t rb = (drb + dstrb) & 0xFF00FF;
++	uint32_t g  = (dg  + dstg) & 0xFF00;
++
++	return rb | g;
++}
++
++/*
++ * Copy icon pixels, blend with background
++ */
++void copy_with_pixel_blend(uint32_t *dst, uint32_t* src, uint32_t background)
++{
++    int i;
++    for(i=0; i < 16*16; ++i) {
++    	*dst++ = pixel_blend(background,*src++);
++    }
++}
++#endif
++
+ /*
+  * Draws the decoration of the given container onto its parent.
+  *
+@@ -527,12 +568,49 @@ void x_draw_decoration(Con *con) {
+     }
+     //DLOG("indent_level = %d, indent_mult = %d\n", indent_level, indent_mult);
+     int indent_px = (indent_level * 5) * indent_mult;
++#ifdef USE_ICONS
++    if (win->icon) indent_px += 18;
++#endif
+ 
+     draw_text(win->name,
+             parent->pixmap, parent->pm_gc,
+             con->deco_rect.x + 2 + indent_px, con->deco_rect.y + text_offset_y,
+             con->deco_rect.width - 2 - indent_px);
+ 
++#ifdef USE_ICONS
++    /* Draw the icon */
++    if (win->icon) {
++        xcb_image_t* icon;
++
++        uint16_t width = 16;
++        uint16_t height = 16;
++        uint32_t icon_pixels[width*height];
++
++        copy_with_pixel_blend(icon_pixels, win->icon, p->color->background);
++
++        icon = xcb_image_create_native( conn,
++                width, height,
++                XCB_IMAGE_FORMAT_Z_PIXMAP,
++                root_depth,
++                NULL,
++                width*height*4,
++                (uint8_t*)icon_pixels
++                );
++                
++        if (icon) {
++            int icon_offset_y = (con->deco_rect.height - 16) / 2;
++
++            xcb_image_put(conn, parent->pixmap, parent->pm_gc,
++                    icon, con->deco_rect.x + indent_px - 16 , con->deco_rect.y + icon_offset_y, 0);
++
++            xcb_image_destroy(icon);
++        }
++        else {
++            ELOG("Error creating XCB image\n");
++        }
++    }
++#endif
++
+ after_title:
+     /* Since we don’t clip the text at all, it might in some cases be painted
+      * on the border pixels on the right side of a window. Therefore, we draw
+-- 
+2.0.0
+
