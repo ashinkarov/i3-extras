@@ -1,0 +1,16 @@
+diff --git a/src/click.c b/src/click.c
+index 3022c24..e76a57c 100644
+--- a/src/click.c
++++ b/src/click.c
+@@ -229,6 +229,12 @@ static int route_click(Con *con, xcb_button_press_event_t *event, const bool mod
+         goto done;
+     }
+
++    if (dest == CLICK_DECORATION && event->detail == 2) {
++        DLOG("Closing window using middle click\n");
++        tree_close(con, KILL_WINDOW, false, false);
++        goto done;
++    }
++
+     /* 2: focus this con. */
+     con_focus(con);
