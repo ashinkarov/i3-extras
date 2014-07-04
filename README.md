@@ -28,6 +28,7 @@ get some more stuff from you guys!
    - [Wrapper around i3lock](#user-content-wrapper-around-i3lock)
    - [Centered image in i3lock](#user-content-centered-image-in-i3lock)
 - [Switching windows](#user-content-switching-windows)
+- [Closing windows](#user-content-closing-windows)
 - [Status bar related](#user-content-status-bar-related)
    - [`wsbar` replacement](#user-content-wsbar-replacement)
    - [`i3bar` replacement](#user-content-i3bar-replacement)
@@ -166,6 +167,12 @@ repository.
 ### TODO
  * Unicode characters are not rendered properly.  Probably it has something to do
    with the encoding that `dmenu` expects.
+
+## Closing windows ##
+
+[AladW](https://github.com/AladW) have created a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/i3-mouse-close.patch) 
+that allows you to close a window via the middle mouse click.
+
 
 ##Status bar related##
 
