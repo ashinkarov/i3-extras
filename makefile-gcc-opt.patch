@@ -1,14 +1,14 @@
-From 23cd33f4293f13dea381fc81239931cec7930d08 Mon Sep 17 00:00:00 2001
+From 57097699cdd4f74d70838af6248cec31ca351e81 Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
 Date: Sat, 16 Nov 2013 17:02:30 +0000
-Subject: [PATCH] Higher optimisation level when compiling i3.
+Subject: [PATCH 2/2] Higher optimisation level when compiling i3.
 
 ---
  common.mk | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/common.mk b/common.mk
-index 276deb3..77f84a8 100644
+index 5581351..4744deb 100644
 --- a/common.mk
 +++ b/common.mk
 @@ -1,5 +1,5 @@
@@ -17,8 +17,8 @@ index 276deb3..77f84a8 100644
 +DEBUG=0
  COVERAGE=0
  INSTALL=install
- FLEX=flex
-@@ -37,7 +37,7 @@ ifeq ($(DEBUG),1)
+ LN=ln
+@@ -36,7 +36,7 @@ ifeq ($(DEBUG),1)
  # Extended debugging flags, macros shall be available in gcc
  CFLAGS ?= -pipe -gdwarf-2 -g3
  else
@@ -28,5 +28,5 @@ index 276deb3..77f84a8 100644
  
  # Default LDFLAGS that users should be able to override
 -- 
-1.8.4.3
+2.0.0
 

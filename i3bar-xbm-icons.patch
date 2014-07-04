@@ -1,7 +1,7 @@
-From f8f9bacb271034cda13ced66cf15a1d8f396fded Mon Sep 17 00:00:00 2001
+From e5d16e32fc6e2517c5e51f778eea296840caf815 Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
 Date: Tue, 19 Feb 2013 20:25:33 +0000
-Subject: [PATCH] Supporting *.xbm icons in i3bar.
+Subject: [PATCH 1/2] Supporting *.xbm icons in i3bar.
 
 Very often in order to display non-default information in the status bar
 it comes handy to use icons near the text for aesthetic reasons and for
@@ -32,10 +32,10 @@ People who contributed:
  create mode 100644 i3bar/src/xbm_image.c
 
 diff --git a/common.mk b/common.mk
-index de5c7e9..276deb3 100644
+index b9e15a2..5581351 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -81,8 +81,10 @@ ldflags_for_lib = $(shell pkg-config --exists 2>/dev/null $(1) && pkg-config --l
+@@ -80,8 +80,10 @@ ldflags_for_lib = $(shell pkg-config --exists 2>/dev/null $(1) && pkg-config --l
  # XCB common stuff
  XCB_CFLAGS  := $(call cflags_for_lib, xcb)
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-event)
@@ -47,10 +47,10 @@ index de5c7e9..276deb3 100644
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-atom)
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-aux)
 diff --git a/i3bar/include/common.h b/i3bar/include/common.h
-index cb55e0d..eb2930f 100644
+index 31ac516..99e8fe4 100644
 --- a/i3bar/include/common.h
 +++ b/i3bar/include/common.h
-@@ -13,6 +13,7 @@
+@@ -12,6 +12,7 @@
  #include <xcb/xproto.h>
  #include "libi3.h"
  #include "queue.h"
@@ -58,7 +58,7 @@ index cb55e0d..eb2930f 100644
  
  typedef struct rect_t rect;
  
-@@ -42,6 +43,9 @@ struct status_block {
+@@ -41,6 +42,9 @@ struct status_block {
      uint32_t min_width;
      blockalign_t align;
  
@@ -89,10 +89,10 @@ index 0000000..3c01c84
 +
 +#endif /* __XBM_IMAGE_H__  */
 diff --git a/i3bar/src/child.c b/i3bar/src/child.c
-index 4e5e49c..a634b22 100644
+index 2bf6551..1477815 100644
 --- a/i3bar/src/child.c
 +++ b/i3bar/src/child.c
-@@ -93,6 +93,8 @@ static int stdin_start_array(void *context) {
+@@ -141,6 +141,8 @@ static int stdin_start_array(void *context) {
          FREE(first->color);
          FREE(first->name);
          FREE(first->instance);
@@ -101,7 +101,7 @@ index 4e5e49c..a634b22 100644
          TAILQ_REMOVE(&statusline_head, first, blocks);
          free(first);
      }
-@@ -147,6 +149,15 @@ static int stdin_string(void *context, const unsigned char *val, unsigned int le
+@@ -187,6 +189,15 @@ static int stdin_string(void *context, const unsigned char *val, size_t len) {
      if (strcasecmp(ctx->last_map_key, "color") == 0) {
          sasprintf(&(ctx->block.color), "%.*s", len, val);
      }
@@ -115,7 +115,7 @@ index 4e5e49c..a634b22 100644
 +        sasprintf(&(ctx->block.icon_color), "%.*s", len, val);
 +    }
      if (strcasecmp(ctx->last_map_key, "align") == 0) {
-         if (len == strlen("left") && !strncmp((const char*)val, "left", strlen("left"))) {
+         if (len == strlen("left") && !strncmp((const char *)val, "left", strlen("left"))) {
              ctx->block.align = ALIGN_LEFT;
 diff --git a/i3bar/src/xbm_image.c b/i3bar/src/xbm_image.c
 new file mode 100644
@@ -402,18 +402,18 @@ index 0000000..ea99ffa
 +}
 +#endif
 diff --git a/i3bar/src/xcb.c b/i3bar/src/xcb.c
-index 15c68a0..9c24df1 100644
+index 37a1334..f784623 100644
 --- a/i3bar/src/xcb.c
 +++ b/i3bar/src/xcb.c
-@@ -10,6 +10,7 @@
- #include <xcb/xcb.h>
+@@ -11,6 +11,7 @@
+ #include <xcb/xkb.h>
  #include <xcb/xproto.h>
  #include <xcb/xcb_aux.h>
 +#include <xcb/xcb_image.h>
  
  #ifdef XCB_COMPAT
  #include "xcb_compat.h"
-@@ -126,7 +127,7 @@ void refresh_statusline(void) {
+@@ -129,7 +130,7 @@ void refresh_statusline(void) {
  
      /* Predict the text width of all blocks (in pixels). */
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -422,7 +422,7 @@ index 15c68a0..9c24df1 100644
              continue;
  
          block->width = predict_text_width(block->full_text);
-@@ -156,6 +157,10 @@ void refresh_statusline(void) {
+@@ -159,6 +160,10 @@ void refresh_statusline(void) {
              block->width += block->sep_block_width;
  
          statusline_width += block->width + block->x_offset + block->x_append;
@@ -433,7 +433,7 @@ index 15c68a0..9c24df1 100644
      }
  
      /* If the statusline is bigger than our screen we need to make sure that
-@@ -171,12 +176,45 @@ void refresh_statusline(void) {
+@@ -174,12 +179,45 @@ void refresh_statusline(void) {
      /* Draw the text of each block. */
      uint32_t x = 0;
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -482,5 +482,5 @@ index 15c68a0..9c24df1 100644
  
          if (TAILQ_NEXT(block, blocks) != NULL && !block->no_separator && block->sep_block_width > 0) {
 -- 
-1.8.4.3
+2.0.0
 
