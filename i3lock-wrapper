@@ -14,10 +14,35 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+arg_test () { # Filter out arguments that are invalid
+    local usage='Usage: i3lock-wrapper [-v] [-n] [-b] [-d] [-p win|default] [-u]'
+    local valid_opts=('-v' '--version' '-n' '--nofork' '-b' '--beep' '-d' '--dpms' '-u' '--no-unlock-indicator' '-p' '--pointer')
+
+    while [[ $# > 0 ]]; do
+        flag_good=0
+
+        for valid_opt in ${valid_opts[@]}; do
+            if [[ "${1:0:1}" != "-" ]] || [[ "${1/=*/}" == "$valid_opt" ]]; then
+                flag_good=1
+            fi
+        done
+
+        if [[ $flag_good -ne 1 ]]; then
+            echo $usage
+            exit
+        fi
+
+        shift
+    done
+}
+
+arg_test $@
+
 file1=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 
 scrot -d0 "$file1"
 convert "$file1" -blur 0x3 "$file2"
-i3lock -i "$file2"
-rm "$file1" "$file2"
+i3lock -i "$file2" $@
+
+trap "rm '$file1' '$file2'" EXIT
