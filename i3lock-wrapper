@@ -60,7 +60,7 @@ arg_test () {
                shift;;
            -d|--dpms)                  
                shift;;
-           -n|--no-unlock-indicator)   
+           -u|--no-unlock-indicator)   
                shift;;
            -p|--pointer) 
                shift
