@@ -17,7 +17,7 @@
 set -e
 
 script_name=$(basename $0)
-params=$(getopt -o vnbdp:h -l version,nofork,beep,dpms,no-unlock-indicator,pointer:,help -n "$script_name" -- "$@")
+params=$(getopt -o vnbdup:h -l version,nofork,beep,dpms,no-unlock-indicator,pointer:,help -n "$script_name" -- "$@")
 eval set -- "$params"
 
 # exit on bad argyments
