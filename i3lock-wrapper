@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013 Artem Shinkarov <artyom.shinkaroff@gmail.com>
+# Copyright (c) 2013-2014 Artem Shinkarov <artyom.shinkaroff@gmail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -14,27 +14,84 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-arg_test () { # Filter out arguments that are invalid
-    local usage='Usage: i3lock-wrapper [-v] [-n] [-b] [-d] [-p win|default] [-u]'
-    local valid_opts=('-v' '--version' '-n' '--nofork' '-b' '--beep' '-d' '--dpms' '-u' '--no-unlock-indicator' '-p' '--pointer')
+set -e
 
-    while [[ $# > 0 ]]; do
-        flag_good=0
+script_name=$(basename $0)
+params=$(getopt -o vnbdp:h -l version,nofork,beep,dpms,no-unlock-indicator,pointer:,help -n "$script_name" -- "$@")
+eval set -- "$params"
 
-        for valid_opt in ${valid_opts[@]}; do
-            if [[ "${1/=*/}" == "$valid_opt" ]]; then
-                flag_good=1
-                [[ $1 == '-p' ]] && shift # Ignore pointer type
-            fi
-        done
+# exit on bad argyments
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 
-        if [[ $flag_good -ne 1 ]]; then
-            echo $usage
-            exit
-        fi
+usage () {
+    cat <<EOF
+A wrapper around i3lock that sets a blurred screenshot 
+as a background image for the screen saver.
 
-        shift
+Usage: $script_name [options]
+
+    -v, --version               version of the i3lock.
+    -n, --nofork                don't fork i3lock after start.
+    -b, --beep                  enable beeping.
+    -d, --dpms                  enable turning off the screen with DPMS.
+    -u, --no-unlock-indicator   disable the unlock indicator.
+    -p win|default, 
+    --pointer=win|default       do not hide the mouse pointer on default
+                                or the current position of the mouse pointer.
+
+    Please note, that all the options are being passed directly to i3lock.
+    See more details via man i3lock.
+EOF
+}
+
+arg_test () { 
+    # Filter out arguments that are invalid
+    while true; do
+       case "$1" in
+           -v|--version)
+               i3lock -v
+               exit
+               ;;
+           -n|--nofork)                
+               shift;;
+           -b|--beep)              
+               shift;;
+           -d|--dpms)                  
+               shift;;
+           -n|--no-unlock-indicator)   
+               shift;;
+           -p|--pointer) 
+               shift
+               case "$1" in
+                   win|default)
+                       shift;;
+                   *)
+                       echo "$script_name: invalid option \"$1\" for argument -p" >&2
+                       exit 1
+                       ;;
+               esac
+               ;;
+           -h|--help)
+               usage
+               exit
+               ;;
+           --)
+               shift 
+               break ;;
+
+           *)
+               echo "$script_name: invalid argument \"$1\"" >&2
+               exit 1
+               ;;
+       esac
     done
+
+    if [ $# -ne 0 ]; then
+       echo "$script_name: invalid arguments \"$@\""
+       exit 1
+    fi
 }
 
 arg_test $@
@@ -44,6 +101,8 @@ file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 
 scrot -d0 "$file1"
 convert "$file1" -blur 0x3 "$file2"
-i3lock -i "$file2" $@
+
+# drop the last "--" introduced by getopt
+i3lock -i "$file2" ${@:1:($#-1)}
 
 trap "rm '$file1' '$file2'" EXIT
