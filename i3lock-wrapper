@@ -102,6 +102,16 @@ file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 scrot -d0 "$file1"
 convert "$file1" -blur 0x3 "$file2"
 
+scale=.8
+height=`file "$file2" | awk -F',' '{print $2;}' | awk '{print $3;}'`
+height=`echo "${height} * ${scale} " | bc | awk '{printf("%d",$1+.5)}'`
+width=`echo "scale=4; 877/1280*${height}" | bc | awk '{printf("%d",$1+.5)}'`
+lockimage="/tmp/i3lock-icon_${width}_${height}.png"
+if [ ! -f "${lockimage}" ]; then
+convert -density 600 -background none -resize ${height}x${width} i3lock-icon.svg "${lockimage}"
+fi
+convert -compose Exclusion -composite -gravity center "$file2" "${lockimage}" "$file2"
+
 # drop the last "--" introduced by getopt
 i3lock -i "$file2" ${@:1:($#-1)}
 
