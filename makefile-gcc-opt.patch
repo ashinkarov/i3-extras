@@ -1,4 +1,4 @@
-From 57097699cdd4f74d70838af6248cec31ca351e81 Mon Sep 17 00:00:00 2001
+From 0800cfeb6ffe3aa789aaf3a4028c1d326e4fa600 Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
 Date: Sat, 16 Nov 2013 17:02:30 +0000
 Subject: [PATCH 2/2] Higher optimisation level when compiling i3.
@@ -28,5 +28,5 @@ index 5581351..4744deb 100644
  
  # Default LDFLAGS that users should be able to override
 -- 
-2.0.0
+2.3.1
 
