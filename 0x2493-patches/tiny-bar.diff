@@ -1,0 +1,102 @@
+diff --git a/i3bar/src/xcb.c b/i3bar/src/xcb.c
+index d3dc948..2ed5b51 100644
+--- a/i3bar/src/xcb.c
++++ b/i3bar/src/xcb.c
+@@ -355,10 +355,10 @@ void handle_button(xcb_button_press_event_t *event) {
+             /* Check if this event regards a workspace button */
+             TAILQ_FOREACH(cur_ws, walk->workspaces, tailq) {
+                 DLOG("x = %d\n", x);
+-                if (x >= 0 && x < cur_ws->name_width + 10) {
++                if (x >= 0 && x <= cur_ws->name_width + font.height - 3) {
+                     break;
+                 }
+-                x -= cur_ws->name_width + 11;
++                x -= cur_ws->name_width + font.height - 3;
+             }
+             if (cur_ws == NULL) {
+                 /* No workspace button was pressed.
+@@ -564,7 +564,7 @@ static void handle_client_message(xcb_client_message_event_t* event) {
+                                 client,
+                                 output->bar,
+                                 output->rect.w - font.height - 2,
+-                                2);
++                                1);
+             /* We reconfigure the window to use a reasonable size. The systray
+              * specification explicitly says:
+              *   Tray icons may be assigned any size by the system tray, and
+@@ -1106,7 +1106,7 @@ void init_xcb_late(char *fontname) {
+     font = load_font(fontname, true);
+     set_font(&font);
+     DLOG("Calculated Font-height: %d\n", font.height);
+-    bar_height = font.height + 6;
++    bar_height = font.height + 2;
+ 
+     xcb_flush(xcb_connection);
+ 
+@@ -1715,8 +1715,8 @@ void draw_bars(bool unhide) {
+                           outputs_walk->buffer,
+                           outputs_walk->bargc,
+                           MAX(0, (int16_t)(statusline_width - outputs_walk->rect.w + 4)), 0,
+-                          MAX(0, (int16_t)(outputs_walk->rect.w - statusline_width - traypx - 4)), 3,
+-                          MIN(outputs_walk->rect.w - traypx - 4, statusline_width), font.height + 2);
++                          MAX(0, (int16_t)(outputs_walk->rect.w - statusline_width - traypx - font.height / 2 + 1)), 0,
++                          MIN(outputs_walk->rect.w - traypx - 4, statusline_width), font.height + 1);
+         }
+ 
+         if (!config.disable_ws) {
+@@ -1751,7 +1751,7 @@ void draw_bars(bool unhide) {
+                               outputs_walk->bargc,
+                               mask,
+                               vals_border);
+-                xcb_rectangle_t rect_border = { i, 1, ws_walk->name_width + 10, font.height + 4 };
++                xcb_rectangle_t rect_border = { i, 0, ws_walk->name_width + font.height - 3, font.height + 2 };
+                 xcb_poly_fill_rectangle(xcb_connection,
+                                         outputs_walk->buffer,
+                                         outputs_walk->bargc,
+@@ -1762,16 +1762,15 @@ void draw_bars(bool unhide) {
+                               outputs_walk->bargc,
+                               mask,
+                               vals);
+-                xcb_rectangle_t rect = { i + 1, 2, ws_walk->name_width + 8, font.height + 2 };
++                xcb_rectangle_t rect = { i + 1, 1, ws_walk->name_width + font.height - 5, font.height };
+                 xcb_poly_fill_rectangle(xcb_connection,
+                                         outputs_walk->buffer,
+                                         outputs_walk->bargc,
+                                         1,
+                                         &rect);
+                 set_font_colors(outputs_walk->bargc, fg_color, bg_color);
+-                draw_text(ws_walk->name, outputs_walk->buffer, outputs_walk->bargc,
+-                          i + 5, 3, ws_walk->name_width);
+-                i += 10 + ws_walk->name_width + 1;
++                draw_text(ws_walk->name, outputs_walk->buffer, outputs_walk->bargc, i + font.height / 2 - 1, 1, ws_walk->name_width);
++                i += font.height - 3 + ws_walk->name_width;
+ 
+             }
+         }
+@@ -1786,7 +1785,7 @@ void draw_bars(bool unhide) {
+                           outputs_walk->bargc,
+                           mask,
+                           vals_border);
+-            xcb_rectangle_t rect_border = { i, 1, binding.width + 10, font.height + 4 };
++            xcb_rectangle_t rect_border = { i, 0, binding.width + font.height - 3, font.height + 2 };
+             xcb_poly_fill_rectangle(xcb_connection,
+                                     outputs_walk->buffer,
+                                     outputs_walk->bargc,
+@@ -1798,7 +1797,7 @@ void draw_bars(bool unhide) {
+                           outputs_walk->bargc,
+                           mask,
+                           vals);
+-            xcb_rectangle_t rect = { i + 1, 2, binding.width + 8, font.height + 2 };
++            xcb_rectangle_t rect = { i + 1, 1, binding.width + font.height - 5, font.height };
+             xcb_poly_fill_rectangle(xcb_connection,
+                                     outputs_walk->buffer,
+                                     outputs_walk->bargc,
+@@ -1806,7 +1805,7 @@ void draw_bars(bool unhide) {
+                                     &rect);
+ 
+             set_font_colors(outputs_walk->bargc, fg_color, bg_color);
+-            draw_text(binding.name, outputs_walk->buffer, outputs_walk->bargc, i + 5, 3, binding.width);
++            draw_text(binding.name, outputs_walk->buffer, outputs_walk->bargc, i + font.height / 2 - 1, 1, binding.width);
+ 
+             unhide = true;
+         }
