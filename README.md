@@ -92,7 +92,7 @@ it all, so please find some of his patches stored [locally](https://github.com/a
  * [`smart-border`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/smart-border.patch)
    doesn't draw a border around the window it is the only window on a workspace.
 
- * `tiny-bar` _(the link is missing)_
+ * [`tiny-bar`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/tiny-bar.diff)
    removes extra spaces around the font in i3bar, which makes the i3bar tinier.
 
  * [`tiny-titles`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/tiny-titles.patch)
