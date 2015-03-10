@@ -17,7 +17,10 @@
 set -e
 
 script_name=$(basename $0)
-params=$(getopt -o vnbdup:lh -l version,nofork,beep,dpms,no-unlock-indicator,pointer:,logo,help -n "$script_name" -- "$@")
+params=$(getopt \
+         -o vnbdIup:elh \
+         -l version,nofork,beep,dpms,inactivity-timeout,no-unlock-indicator,pointer:,ignore-empty-password,logo,help \
+         -n "$script_name" -- "$@")
 eval set -- "$params"
 # exit on bad argyments
 if [ $? -ne 0 ]; then
@@ -35,14 +38,19 @@ Usage: $script_name [options]
     -n, --nofork                don't fork i3lock after start.
     -b, --beep                  enable beeping.
     -d, --dpms                  enable turning off the screen with DPMS.
+    -I, --inactivity-timeout    specifies  the  number of seconds i3lock will 
+                                wait for another password before turning
+                                off the monitors.
     -u, --no-unlock-indicator   disable the unlock indicator.
     -p win|default, 
     --pointer=win|default       do not hide the mouse pointer on default
                                 or the current position of the mouse pointer.
+    -e, --ignore-empty-password when an empty password is provided by the user,
+                                do  not  validate  it.
     -l, --logo                  superimpose the padlock logo
 
-    Please note, that all the options are being passed directly to i3lock.
-    See more details via man i3lock.
+    Please note, that all the options except "-l" or "--logo" are being passed 
+    directly to i3lock.  See "man i3lock" for more details.
 EOF
 }
 
@@ -60,6 +68,8 @@ arg_test () {
                shift;;
            -d|--dpms)                  
                shift;;
+           -I|--inactivity-timeout)
+               shift;;
            -u|--no-unlock-indicator)   
                shift;;
            -p|--pointer) 
@@ -73,6 +83,8 @@ arg_test () {
                        ;;
                esac
                ;;
+           -e|--ignore-empty-password)
+               shift;;
            -l|--logo)
                use_logo=1
                shift;;
