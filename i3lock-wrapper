@@ -139,7 +139,7 @@ superimpose_padlock() {
     width=$(identify -format "scale=4; t=%W/%H; scale=0; (t * $height + .5)/1\n" "${lockimage}.pdf" | bc)
     convert -density 600 -background none -resize ${height}x${width} "${lockimage}.pdf" "${lockimage}.png"
     convert -compose Exclusion -composite -gravity center "$file2" "${lockimage}.png" "$file2"
-    rm "${lockimage}"
+    rm "${lockimage}" "${lockimage}.png" "${lockimage}.pdf"
 }
 
 use_logo=0
@@ -150,6 +150,7 @@ file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 
 scrot -d0 "$file1"
 convert "$file1" -blur 0x3 "$file2"
+rm "$file1" # Remove for security
 
 if [ $use_logo -eq 1 ]; then
     superimpose_padlock
@@ -165,4 +166,4 @@ done
 # drop the last "--" introduced by getopt
 i3lock -i "$file2" ${cmd}
 
-trap "rm '$file1' '$file2'" EXIT
+trap "rm '$file2'" EXIT
