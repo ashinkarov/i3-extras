@@ -99,7 +99,7 @@ it all, so please find some of his patches stored [locally](https://github.com/a
    removes extra spaces around the font in window titles.
 
 ###Window icons###
-[Maris Muja](https://github.com/mariusmuja) wrote a [patch[(https://raw.githubusercontent.com/ashinkarov/i3-extras/master/window-icons/window-icons.patch)
+[Maris Muja](https://github.com/mariusmuja) wrote a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/window-icons/window-icons.patch)
 to draw an application icon in the left corner of the window bar.  _Please have a look at his 
 [i3wm repository](https://github.com/mariusmuja/i3wm/commits/next), you can find some
 more patches there._
