@@ -64,7 +64,7 @@ def exec_dzen (rect):
     keyc =    "key_c=ungrabkeys,print:%(b_cancel)s,exit"
     keyC =    "key_C=ungrabkeys,print:%(b_cancel)s,exit"
 
-    cmd = "/home/tema/src/dzen/dzen2 -p -m -l %(menu_lines)i -x %(menu_x)i -y %(menu_y)i " +\
+    cmd = "dzen2 -p -m -l %(menu_lines)i -x %(menu_x)i -y %(menu_y)i " +\
           "-w %(menu_width)i -sa c -fn %(font_menu)s -bg \"#151515\" -fg \"#92cd00\" " + \
           "-e \"" + ";".join ((onstart, button1,escape,keyq,keyQ,keyr,keyR, \
                                keyl,keyL,keys,keyS,keyc,keyC)) +\
