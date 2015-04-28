@@ -1,6 +1,6 @@
-From 7bd61609cfca61810275a82bbdf805ac4428ab84 Mon Sep 17 00:00:00 2001
+From 9334bc0b299aa970eac4bde235e6e43c05e49648 Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
-Date: Mon, 9 Mar 2015 15:13:32 +0000
+Date: Tue, 28 Apr 2015 14:25:01 +0100
 Subject: [PATCH 1/2] Supporting *.xbm icons in i3bar.
 
 Very often in order to display non-default information in the status bar
@@ -29,16 +29,16 @@ People who contributed:
  i3bar/include/xbm_image.h |  14 +++
  i3bar/src/child.c         |  11 ++
  i3bar/src/xbm_image.c     | 278 ++++++++++++++++++++++++++++++++++++++++++++++
- i3bar/src/xcb.c           |  47 +++++++-
- 6 files changed, 354 insertions(+), 2 deletions(-)
+ i3bar/src/xcb.c           |  48 +++++++-
+ 6 files changed, 355 insertions(+), 2 deletions(-)
  create mode 100644 i3bar/include/xbm_image.h
  create mode 100644 i3bar/src/xbm_image.c
 
 diff --git a/common.mk b/common.mk
-index b9e15a2..5581351 100644
+index c568fb6..dfa2731 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -80,8 +80,10 @@ ldflags_for_lib = $(shell pkg-config --exists 2>/dev/null $(1) && pkg-config --l
+@@ -83,8 +83,10 @@ ldflags_for_lib = $(shell $(PKG_CONFIG) --exists 2>/dev/null $(1) && $(PKG_CONFI
  # XCB common stuff
  XCB_CFLAGS  := $(call cflags_for_lib, xcb)
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-event)
@@ -46,11 +46,11 @@ index b9e15a2..5581351 100644
  XCB_LIBS    := $(call ldflags_for_lib, xcb,xcb)
  XCB_LIBS    += $(call ldflags_for_lib, xcb-event,xcb-event)
 +XCB_LIBS    += $(call ldflags_for_lib, xcb-image,xcb-image)
- ifeq ($(shell pkg-config --exists xcb-util 2>/dev/null || echo 1),1)
+ ifeq ($(shell $(PKG_CONFIG) --exists xcb-util 2>/dev/null || echo 1),1)
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-atom)
  XCB_CFLAGS  += $(call cflags_for_lib, xcb-aux)
 diff --git a/i3bar/include/common.h b/i3bar/include/common.h
-index 997a429..4e5ddb1 100644
+index 90da938..2bec087 100644
 --- a/i3bar/include/common.h
 +++ b/i3bar/include/common.h
 @@ -12,6 +12,7 @@
@@ -61,8 +61,8 @@ index 997a429..4e5ddb1 100644
  
  typedef struct rect_t rect;
  
-@@ -40,6 +41,9 @@ struct status_block {
-     uint32_t min_width;
+@@ -47,6 +48,9 @@ struct status_block {
+ 
      blockalign_t align;
  
 +    struct xbm_image *icon;
@@ -70,7 +70,7 @@ index 997a429..4e5ddb1 100644
 +
      bool urgent;
      bool no_separator;
- 
+     bool is_markup;
 diff --git a/i3bar/include/xbm_image.h b/i3bar/include/xbm_image.h
 new file mode 100644
 index 0000000..3c01c84
@@ -92,21 +92,21 @@ index 0000000..3c01c84
 +
 +#endif /* __XBM_IMAGE_H__  */
 diff --git a/i3bar/src/child.c b/i3bar/src/child.c
-index efe0288..91c7aea 100644
+index e5ce209..569093d 100644
 --- a/i3bar/src/child.c
 +++ b/i3bar/src/child.c
-@@ -73,6 +73,8 @@ static void clear_statusline(struct statusline_head *head, bool free_resources)
-             FREE(first->color);
+@@ -75,6 +75,8 @@ static void clear_statusline(struct statusline_head *head, bool free_resources)
              FREE(first->name);
              FREE(first->instance);
+             FREE(first->min_width_str);
 +            FREE(first->icon_color);
 +            xbm_free (first->icon);
          }
  
          TAILQ_REMOVE(head, first, blocks);
-@@ -191,6 +193,15 @@ static int stdin_string(void *context, const unsigned char *val, size_t len) {
-     if (strcasecmp(ctx->last_map_key, "color") == 0) {
-         sasprintf(&(ctx->block.color), "%.*s", len, val);
+@@ -209,6 +211,15 @@ static int stdin_string(void *context, const unsigned char *val, size_t len) {
+         ctx->block.is_markup = (len == strlen("pango") && !strncasecmp((const char *)val, "pango", strlen("pango")));
+         return 1;
      }
 +    if (strcasecmp(ctx->last_map_key, "icon") == 0) {
 +        char * s;
@@ -405,7 +405,7 @@ index 0000000..ea99ffa
 +}
 +#endif
 diff --git a/i3bar/src/xcb.c b/i3bar/src/xcb.c
-index 8bda53c..07d01b8 100644
+index 11a017c..9c1801e 100644
 --- a/i3bar/src/xcb.c
 +++ b/i3bar/src/xcb.c
 @@ -11,6 +11,7 @@
@@ -416,16 +416,16 @@ index 8bda53c..07d01b8 100644
  
  #ifdef XCB_COMPAT
  #include "xcb_compat.h"
-@@ -135,7 +136,7 @@ void refresh_statusline(void) {
+@@ -200,7 +201,7 @@ void refresh_statusline(bool use_short_text) {
+             block->full_text = i3string_copy(block->short_text);
+         }
  
-     /* Predict the text width of all blocks (in pixels). */
-     TAILQ_FOREACH(block, &statusline_head, blocks) {
 -        if (i3string_get_num_bytes(block->full_text) == 0)
 +        if (i3string_get_num_bytes(block->full_text) == 0 && block->icon == NULL)
              continue;
  
          block->width = predict_text_width(block->full_text);
-@@ -165,6 +166,10 @@ void refresh_statusline(void) {
+@@ -230,6 +231,11 @@ void refresh_statusline(bool use_short_text) {
              statusline_width += block->sep_block_width;
  
          statusline_width += block->width + block->x_offset + block->x_append;
@@ -433,10 +433,11 @@ index 8bda53c..07d01b8 100644
 +        /* Add some space between the text and the icon. */
 +        if (block->icon)
 +            statusline_width += block->icon->width + 5;
++
      }
  
      /* If the statusline is bigger than our screen we need to make sure that
-@@ -180,8 +185,42 @@ void refresh_statusline(void) {
+@@ -245,8 +251,42 @@ void refresh_statusline(bool use_short_text) {
      /* Draw the text of each block. */
      uint32_t x = 0;
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -480,7 +481,7 @@ index 8bda53c..07d01b8 100644
          uint32_t fg_color;
  
          /* If this block is urgent, draw it with the defined color and border. */
-@@ -374,6 +413,10 @@ void handle_button(xcb_button_press_event_t *event) {
+@@ -431,6 +471,10 @@ void handle_button(xcb_button_press_event_t *event) {
                  last_block_x = block_x;
                  block_x += block->width + block->x_offset + block->x_append + get_sep_offset(block) + sep_offset_remainder;
  
@@ -492,5 +493,5 @@ index 8bda53c..07d01b8 100644
                      send_block_clicked(event->detail, block->name, block->instance, event->root_x, event->root_y);
                      return;
 -- 
-2.3.1
+2.3.6
 
