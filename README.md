@@ -161,7 +161,7 @@ through `dmenu`, focus the selected one.  One implementation can be found in
 repository.  The script is called `winmenu.py`.
 
 Another implementation can be found in
-[slowpoke quickswitch-for-i3](https://github.com/proxypoke/quickswitch-for-i3)
+[quickswitch-for-i3](https://github.com/OliverUv/quickswitch-for-i3)
 repository.
 
 ### TODO
