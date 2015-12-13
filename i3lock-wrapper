@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013-2014 Artem Shinkarov <artyom.shinkaroff@gmail.com>
+# Copyright (c) 2013-2015 Artem Shinkarov <artyom.shinkaroff@gmail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -18,8 +18,8 @@ set -e
 
 script_name=$(basename $0)
 params=$(getopt \
-         -o vnbdIup:elh \
-         -l version,nofork,beep,dpms,inactivity-timeout,no-unlock-indicator,pointer:,ignore-empty-password,logo,help \
+         -o vnbdI:up:elh \
+         -l version,nofork,beep,dpms,inactivity-timeout:,no-unlock-indicator,pointer:,ignore-empty-password,logo,help \
          -n "$script_name" -- "$@")
 eval set -- "$params"
 # exit on bad argyments
@@ -38,7 +38,8 @@ Usage: $script_name [options]
     -n, --nofork                don't fork i3lock after start.
     -b, --beep                  enable beeping.
     -d, --dpms                  enable turning off the screen with DPMS.
-    -I, --inactivity-timeout    specifies  the  number of seconds i3lock will 
+    -I sec,
+    --inactivity-timeout=sec    specifies  the  number of seconds i3lock will 
                                 wait for another password before turning
                                 off the monitors.
     -u, --no-unlock-indicator   disable the unlock indicator.
@@ -69,7 +70,17 @@ arg_test () {
            -d|--dpms)                  
                shift;;
            -I|--inactivity-timeout)
-               shift;;
+               shift
+               case "$1" in
+                   [0-9]*)
+                       shift;;
+                    *)
+                       echo "$script_name: invallid option \"$1\" for argument -I" \
+                            "number expected" >&2
+                       exit 1
+                       ;;
+               esac
+               ;;
            -u|--no-unlock-indicator)   
                shift;;
            -p|--pointer) 
