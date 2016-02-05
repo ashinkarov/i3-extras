@@ -20,7 +20,9 @@ get some more stuff from you guys!
    - [Title of the focused windows](#user-content-title-of-the-focused-windows)
    - [Icons in i3bar](#user-content-icons-in-i3bar)
    - [Higher optimisation level](#user-content-higher-optimisation-level)
-   - [Patches for size, borders, cwd](user-content-patches-for-size-borders-cwd)
+   - [Patches for size, borders, cwd](#user-content-patches-for-size-borders-cwd)
+   - [Window icons](#user-content-window-icons)
+   - [Desktop window](#user-content-desktop-window)
 - [Nagbar replacements](#user-content-nagbar-replacements)
    - [Nagbar replacement 1](#user-content-nagbar-replacement-i3-exit-1)
    - [Nagbar replacement 2](#user-content-nagbar-replacement-i3-exit-2)
@@ -37,7 +39,7 @@ get some more stuff from you guys!
    - [Status for i3+dzen2 [2]](#user-content-status-for-i3dzen2-2)
    - [i3blocks](#i3blocks)
 - [Vim syntax for i3 config](#user-content-vim-syntax-for-i3-config)
- 
+
 
 ##Patches##
 
@@ -98,11 +100,21 @@ it all, so please find some of his patches stored [locally](https://github.com/a
  * [`tiny-titles`](https://github.com/ashinkarov/i3-extras/blob/master/0x2493-patches/tiny-titles.patch)
    removes extra spaces around the font in window titles.
 
+
 ###Window icons###
 [Maris Muja](https://github.com/mariusmuja) wrote a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/window-icons/window-icons.patch)
-to draw an application icon in the left corner of the window bar.  _Please have a look at his 
+to draw an application icon in the left corner of the window bar.  _Please have a look at his
 [i3wm repository](https://github.com/mariusmuja/i3wm/commits/next), you can find some
 more patches there._
+
+###Desktop window###
+[alessandro-g89](https://github.com/alessandro-g89) has created a
+[patch](https://github.com/ashinkarov/i3-extras/blob/master/i3-desktop-patch/i3-desktop.patch)
+that makes it possible to use desktop windows (with wallpaper and icons) created
+by file managers like Natutilus, PCManFMM and others.  Please find some brief
+instructions [here](https://github.com/ashinkarov/i3-extras/blob/master/i3-desktop-patch/README.md)
+on how to use the patch as well as suggestions for further improvements.
+
 
 ##Nagbar replacements##
 
@@ -170,7 +182,7 @@ repository.
 
 ## Closing windows ##
 
-[AladW](https://github.com/AladW) have created a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/i3-mouse-close.patch) 
+[AladW](https://github.com/AladW) have created a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/i3-mouse-close.patch)
 that allows you to close a window via the middle mouse click.
 
 
@@ -186,7 +198,7 @@ The main difference -- this script is written in Python.
 
 [lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
 functionality of i3statys.  It has transparency by default, confiuration is set via config file.
-The project in its early stages but is being actively developed.  Here is a default 
+The project in its early stages but is being actively developed.  Here is a default
 liefbar screenshot:
 
 ![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
@@ -196,7 +208,7 @@ liefbar screenshot:
 
 [enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
 piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
-for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be 
+for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be
 imported later in the output-generator.
 
 [py3status](https://github.com/ultrabug/py3status) has a similiar name, but uses a different
@@ -237,10 +249,10 @@ He also has a very nice icons which you can hopefully steal from
 
 [Vivien Didelot](https://github.com/vivien) maintains the
 [i3blocks project](https://github.com/vivien/i3blocks)
-i3blocks is a highly flexible status line for the i3 window manager. It handles 
-clicks, signals and language-agnostic user scripts.  The content of each block 
+i3blocks is a highly flexible status line for the i3 window manager. It handles
+clicks, signals and language-agnostic user scripts.  The content of each block
 (e.g. time, battery status, network state, ...) is the output of a command provided
-by the user. Blocks are updated on click, at a given interval of time or on a 
+by the user. Blocks are updated on click, at a given interval of time or on a
 given signal, also specified by the user.  It aims to respect the i3bar protocol,
 providing customization such as text alignment, urgency, color, and more.  See their
 [wiki](https://github.com/vivien/i3blocks/wiki) for more details.

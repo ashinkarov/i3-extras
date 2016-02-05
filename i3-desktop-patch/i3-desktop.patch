@@ -1,0 +1,206 @@
+diff --git a/include/atoms.xmacro b/include/atoms.xmacro
+index 139b6ef..b454002 100644
+--- a/include/atoms.xmacro
++++ b/include/atoms.xmacro
+@@ -12,6 +12,7 @@ xmacro(_NET_WM_STATE)
+ xmacro(_NET_WM_WINDOW_TYPE)
+ xmacro(_NET_WM_WINDOW_TYPE_NORMAL)
+ xmacro(_NET_WM_WINDOW_TYPE_DOCK)
++xmacro(_NET_WM_WINDOW_TYPE_DESKTOP)
+ xmacro(_NET_WM_WINDOW_TYPE_DIALOG)
+ xmacro(_NET_WM_WINDOW_TYPE_UTILITY)
+ xmacro(_NET_WM_WINDOW_TYPE_TOOLBAR)
+diff --git a/src/click.c b/src/click.c
+index a670120..e753d00 100644
+--- a/src/click.c
++++ b/src/click.c
+@@ -18,6 +18,8 @@
+ 
+ #include <X11/XKBlib.h>
+ 
++extern xcb_window_t desktop_window;
++
+ typedef enum { CLICK_BORDER = 0,
+                CLICK_DECORATION = 1,
+                CLICK_INSIDE = 2 } click_destination_t;
+@@ -389,7 +391,12 @@ int handle_button_press(xcb_button_press_event_t *event) {
+             return 0;
+         }
+ 
+-        ELOG("Clicked into unknown window?!\n");
++        if(desktop_window != XCB_NONE && event->event == desktop_window) {
++            Con *ws = con_get_workspace(focused);
++            con_focus(ws);
++            return route_click(ws, event, mod_pressed, CLICK_INSIDE);
++        } else
++            ELOG("Clicked into unknown window?!\n");
+         xcb_allow_events(conn, XCB_ALLOW_REPLAY_POINTER, event->time);
+         xcb_flush(conn);
+         return 0;
+diff --git a/src/commands.c b/src/commands.c
+index 482560b..0ee5d2b 100644
+--- a/src/commands.c
++++ b/src/commands.c
+@@ -19,6 +19,8 @@
+ #include "all.h"
+ #include "shmlog.h"
+ 
++extern xcb_window_t desktop_window;
++
+ // Macros to make the YAJL API a bit easier to use.
+ #define y(x, ...) (cmd_output->json_gen != NULL ? yajl_gen_##x(cmd_output->json_gen, ##__VA_ARGS__) : 0)
+ #define ystr(str) (cmd_output->json_gen != NULL ? yajl_gen_string(cmd_output->json_gen, (unsigned char *)str, strlen(str)) : 0)
+@@ -1364,6 +1366,12 @@ void cmd_focus_window_mode(I3_CMD, const char *window_mode) {
+                 window_mode = "floating";
+         }
+         Con *current;
++
++        if (strcmp(window_mode, "tiling")==0 && TAILQ_EMPTY(&(ws->nodes_head)) && desktop_window != XCB_NONE){
++            con_focus(ws);
++            goto end;
++        }
++
+         TAILQ_FOREACH(current, &(ws->focus_head), focused) {
+             if ((strcmp(window_mode, "floating") == 0 && current->type != CT_FLOATING_CON) ||
+                 (strcmp(window_mode, "tiling") == 0 && current->type == CT_FLOATING_CON))
+@@ -1374,6 +1382,7 @@ void cmd_focus_window_mode(I3_CMD, const char *window_mode) {
+         }
+     }
+ 
++    end:
+     cmd_output->needs_tree_render = true;
+     // XXX: default reply for now, make this a better reply
+     ysuccess(true);
+diff --git a/src/con.c b/src/con.c
+index cd17f9e..4d07637 100644
+--- a/src/con.c
++++ b/src/con.c
+@@ -14,6 +14,8 @@
+ #include "all.h"
+ #include "yajl_utils.h"
+ 
++extern xcb_window_t desktop_window;
++
+ static void con_on_remove_child(Con *con);
+ 
+ /*
+@@ -1153,6 +1155,9 @@ void con_move_to_workspace(Con *con, Con *workspace, bool fix_coordinates, bool
+         return;
+     }
+ 
++    if (focused->type == CT_WORKSPACE && desktop_window != XCB_NONE)
++        return;
++
+     Con *target = con_descend_focused(workspace);
+     _con_move_to_con(con, target, true, fix_coordinates, dont_warp, ignore_focus);
+ }
+diff --git a/src/handlers.c b/src/handlers.c
+index 50e218c..1f7e09d 100644
+--- a/src/handlers.c
++++ b/src/handlers.c
+@@ -23,6 +23,8 @@ int randr_base = -1;
+ int xkb_base = -1;
+ int xkb_current_group;
+ 
++extern xcb_window_t desktop_window;
++
+ /* After mapping/unmapping windows, a notify event is generated. However, we don’t want it,
+    since it’d trigger an infinite loop of switching between the different windows when
+    changing workspaces */
+@@ -148,6 +150,19 @@ static void handle_enter_notify(xcb_enter_notify_event_t *event) {
+         enter_child = true;
+     }
+ 
++    if(desktop_window != XCB_NONE && event->event == desktop_window){
++        /* This check stops the desktop window from stealing the focus when a floating window
++         * is focused through a command/keybinding but the pointer is still on the desktop window */
++        if (event->detail==XCB_NOTIFY_DETAIL_NONLINEAR){
++            if(config.disable_focus_follows_mouse==false){
++                Con *ws = con_get_workspace(focused);
++                con_focus(ws);
++                tree_render();
++            }
++        } else
++            return;
++    }
++
+     /* If not, then the user moved their cursor to the root window. In that case, we adjust c_ws */
+     if (con == NULL) {
+         DLOG("Getting screen at %d x %d\n", event->root_x, event->root_y);
+diff --git a/src/manage.c b/src/manage.c
+index 93272f1..533ee75 100644
+--- a/src/manage.c
++++ b/src/manage.c
+@@ -14,6 +14,8 @@
+ 
+ #include <yajl/yajl_gen.h>
+ 
++extern xcb_window_t desktop_window;
++
+ /*
+  * Go through all existing windows (if the window manager is restarted) and manage them
+  *
+@@ -211,6 +213,16 @@ void manage_window(xcb_window_t window, xcb_get_window_attributes_cookie_t cooki
+     /* read the preferred _NET_WM_WINDOW_TYPE atom */
+     cwindow->window_type = xcb_get_preferred_window_type(type_reply);
+ 
++    /* map _NET_WM_WINDOW_TYPE_DESKTOP windows and receive focus events, but don't manage them */
++    if (xcb_reply_contains_atom(type_reply, A__NET_WM_WINDOW_TYPE_DESKTOP)) {
++        desktop_window = window;
++        xcb_map_window(conn, window);
++        values[0] = XCB_EVENT_MASK_ENTER_WINDOW;
++        xcb_change_window_attributes(conn, window, XCB_CW_EVENT_MASK, values);
++        xcb_flush(conn);
++        goto geom_out;
++    }
++    
+     /* Where to start searching for a container that swallows the new one? */
+     Con *search_at = croot;
+ 
+diff --git a/src/tree.c b/src/tree.c
+index 0c30120..5dcc0fd 100644
+--- a/src/tree.c
++++ b/src/tree.c
+@@ -14,6 +14,8 @@
+ struct Con *croot;
+ struct Con *focused;
+ 
++xcb_window_t desktop_window = XCB_NONE;
++
+ struct all_cons_head all_cons = TAILQ_HEAD_INITIALIZER(all_cons);
+ 
+ /*
+diff --git a/src/x.c b/src/x.c
+index f44bc37..c7d50e4 100644
+--- a/src/x.c
++++ b/src/x.c
+@@ -13,6 +13,7 @@
+ #include "all.h"
+ 
+ xcb_window_t ewmh_window;
++extern xcb_window_t desktop_window;
+ 
+ /* Stores the X11 window ID of the currently focused window */
+ xcb_window_t focused_id = XCB_NONE;
+@@ -387,6 +388,8 @@ void x_draw_decoration(Con *con) {
+     /* find out which colors to use */
+     if (con->urgent)
+         p->color = &config.client.urgent;
++    else if (focused->type==CT_WORKSPACE && desktop_window != XCB_NONE)
++        p->color = &config.client.focused_inactive;
+     else if (con == focused || con_inside_focused(con))
+         p->color = &config.client.focused;
+     else if (con == TAILQ_FIRST(&(parent->focus_head)))
+@@ -1098,6 +1101,12 @@ void x_push_changes(Con *con) {
+     if (focused->window != NULL)
+         to_focus = focused->window->id;
+ 
++    if(focused->type == CT_WORKSPACE && desktop_window != XCB_NONE) {
++        to_focus = desktop_window;
++        /* assume that the desktop window is mapped */
++        focused->mapped = true;
++    }
++    
+     if (focused_id != to_focus) {
+         if (!focused->mapped) {
+             DLOG("Not updating focus (to %p / %s), focused window is not mapped.\n", focused, focused->name);
