@@ -9,21 +9,29 @@ How to use
 ===========
 * Download and unzip the i3 source code (this patch is made for version
   4.11, can't say if/when newer versions will break it).
-* Apply the patch
-	$ patch -p1 < /path/to/i3-desktop.patch
+* Apply the patch:
+
+  ```shell
+  $ patch -p1 < /path/to/i3-desktop.patch
+  ```
 * Compile, install and restart i3
 * Launch a desktop manager, e.g.
-	$ pcmanfm --desktop
+
+  ```shell
+  $ pcmanfm --desktop
+  ```
   or
-	$ nautilus
+  ```shell
+  $ nautilus
+  ```
   (nautilus should start the desktop manager automatically, unless you have
   previously disabled it).
 * Go to an empty workspace, you should see the icons of your ~/Desktop
   folder on the desktop. If you open any tiling window it should hide
   the desktop.
 
-To do
-======
+Todo
+====
 * Test what happens on a dual monitor setup.
 * The code does not handle the case where the window desktop is closed if
   e.g. it crashes or the user kills it. Nothing really bad should happen,
