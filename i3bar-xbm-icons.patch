@@ -448,8 +448,8 @@ index 11a017c..9c1801e 100644
 +        if (block->icon != NULL) {
 +            xcb_image_t *  img;
 +
-+            img = xcb_image_create_native (conn, block->icon->height,
-+                                           block->icon->width,
++            img = xcb_image_create_native (conn, block->icon->width,
++                                           block->icon->height,
 +                                           XCB_IMAGE_FORMAT_XY_BITMAP,
 +                                           1, NULL, ~0, NULL);
 +
