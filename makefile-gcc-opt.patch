@@ -1,6 +1,6 @@
-From e775bc997a2a7605e5672fd0d78d5c266883af94 Mon Sep 17 00:00:00 2001
+From 117878b2e5ebab6927be4f5e75c9fb3859978f9d Mon Sep 17 00:00:00 2001
 From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
-Date: Tue, 28 Apr 2015 14:27:59 +0100
+Date: Tue, 22 Mar 2016 20:14:58 +0000
 Subject: [PATCH 2/2] Higher optimisation level when compiling i3.
 
 ---
@@ -8,17 +8,17 @@ Subject: [PATCH 2/2] Higher optimisation level when compiling i3.
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/common.mk b/common.mk
-index dfa2731..918e134 100644
+index bef7877..e5f48c3 100644
 --- a/common.mk
 +++ b/common.mk
 @@ -1,5 +1,5 @@
  UNAME=$(shell uname)
 -DEBUG=1
 +DEBUG=0
+ ASAN=0
  INSTALL=install
  LN=ln
- PKG_CONFIG=pkg-config
-@@ -39,7 +39,7 @@ ifeq ($(DEBUG),1)
+@@ -40,7 +40,7 @@ ifeq ($(DEBUG),1)
  # Extended debugging flags, macros shall be available in gcc
  CFLAGS ?= -pipe -gdwarf-2 -g3
  else
@@ -26,7 +26,7 @@ index dfa2731..918e134 100644
 +CFLAGS ?= -pipe -O3 -march=native -mtune=native -freorder-blocks-and-partition
  endif
  
- # Default LDFLAGS that users should be able to override
+ ifeq ($(ASAN),1)
 -- 
-2.3.6
+2.7.4
 
