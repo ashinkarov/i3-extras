@@ -39,7 +39,7 @@ get some more stuff from you guys!
    - [Status for i3+dzen2 [2]](#user-content-status-for-i3dzen2-2)
    - [i3blocks](#i3blocks)
 - [Vim syntax for i3 config](#user-content-vim-syntax-for-i3-config)
-
+- [Scratchpad manager](#scratchpad-manager)
 
 ##Patches##
 
@@ -267,6 +267,10 @@ In order to enable it you can add `# vim:filetype=i3` as a comment to your file,
 or you can do it manually.  Another option is to recognise the path to the i3
 config and write an autocmd: `autocmd BufEnter *i3/config  setlocal filetype=i3`
 
+## Scratchpad manager ##
 
+[Mustafa Gezen](https://github.com/mstg) have created a manager for i3 scratchpad
+called [zx](https://github.com/mstg/zx).  The manager makes it possible to track
+the windows that are currently in the scratchpad. 
 
 
