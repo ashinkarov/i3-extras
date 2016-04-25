@@ -22,7 +22,7 @@ params=$(getopt \
          -l version,nofork,beep,dpms,inactivity-timeout:,no-unlock-indicator,pointer:,ignore-empty-password,show-failed-attempts,logo,help \
          -n "$script_name" -- "$@")
 eval set -- "$params"
-# exit on bad argyments
+# exit on bad arguments
 if [ $? -ne 0 ]; then
     exit 1
 fi
@@ -75,7 +75,7 @@ arg_test () {
                    [0-9]*)
                        shift;;
                     *)
-                       echo "$script_name: invallid option \"$1\" for argument -I" \
+                       echo "$script_name: invalid option \"$1\" for argument -I" \
                             "number expected" >&2
                        exit 1
                        ;;
