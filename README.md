@@ -23,6 +23,7 @@ get some more stuff from you guys!
    - [Patches for size, borders, cwd](#user-content-patches-for-size-borders-cwd)
    - [Window icons](#user-content-window-icons)
    - [Desktop window](#user-content-desktop-window)
+- [dmenu replacements](#user-content-dmenu-replacements)
 - [Nagbar replacements](#user-content-nagbar-replacements)
    - [Nagbar replacement 1](#user-content-nagbar-replacement-i3-exit-1)
    - [Nagbar replacement 2](#user-content-nagbar-replacement-i3-exit-2)
@@ -115,6 +116,13 @@ by file managers like Natutilus, PCManFMM and others.  Please find some brief
 instructions [here](https://github.com/ashinkarov/i3-extras/blob/master/i3-desktop-patch/README.md)
 on how to use the patch as well as suggestions for further improvements.
 
+## [dmenu](http://tools.suckless.org/dmenu/) replacements ##
+Sean Pringle's [rofi](https://davedavenport.github.io/rofi/) is a generic very powerful
+[dmenu](http://tools.suckless.org/dmenu/)-like tool that can be used for all kinds of
+custom launchers, e.g. window switching, running commands, ssh sessions, etc.
+It is fully configurable and well-mamintained.
+
+![Image](https://davedavenport.github.io/rofi/images/rofi/window-list.png)
 
 ## Nagbar replacements ##
 
