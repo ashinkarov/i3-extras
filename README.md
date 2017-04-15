@@ -30,8 +30,10 @@ get some more stuff from you guys!
 - [`i3lock` related](#user-content-i3lock-related)
    - [Wrapper around i3lock](#user-content-wrapper-around-i3lock)
    - [Centered image in i3lock](#user-content-centered-image-in-i3lock)
-- [Switching windows](#user-content-switching-windows)
-- [Closing windows](#user-content-closing-windows)
+- [Windows related](#user-content-windows-related)
+   - [Switching windows](#user-content-switching-windows)
+   - [Closing windows](#user-content-closing-windows)
+- [Workspace related](#user-content-workspace-related)
 - [Status bar related](#user-content-status-bar-related)
    - [`wsbar` replacement](#user-content-wsbar-replacement)
    - [Scripts for i3bar/i3status](#user-content-scripts-for-i3bari3status)
@@ -173,8 +175,8 @@ For Arch Linux users here is an [AUR](https://aur.archlinux.org/packages/i3lock-
 for i3lock that allows to centre the image of the size smaller than the screen
 resolution.
 
-
-## Switching windows ##
+## Windows related ##
+### Switching windows ###
 
 There are two scripts doing a very similar task -- list all the windows, pipe it
 through `dmenu`, focus the selected one.  One implementation can be found in
@@ -189,10 +191,22 @@ repository.
  * Unicode characters are not rendered properly.  Probably it has something to do
    with the encoding that `dmenu` expects.
 
-## Closing windows ##
+### Closing windows ###
 
 [AladW](https://github.com/AladW) have created a [patch](https://raw.githubusercontent.com/ashinkarov/i3-extras/master/i3-mouse-close.patch)
 that allows you to close a window via the middle mouse click.
+
+## Workspace related ##
+
+[Cameron Leger](https://github.com/cameronleger) has created a
+[set of scripts](https://github.com/cameronleger/i3-workspacer) that make it possible
+to:
+  * rename/renumber workspaces
+  * move workspaces
+  * go to a workspace
+
+The scripts can be bound to the keys of your choice which gives a convenient interface
+to i3 features that otherwise are available only via i3-input.
 
 
 ## Status bar related ##
