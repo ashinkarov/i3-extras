@@ -34,12 +34,12 @@ get some more stuff from you guys!
 - [Closing windows](#user-content-closing-windows)
 - [Status bar related](#user-content-status-bar-related)
    - [`wsbar` replacement](#user-content-wsbar-replacement)
-   - [`i3bar` replacement (lynks--)](#user-content-i3bar-replacement-lynks--)
-   - [`i3bar` replacement (polybar)](#user-content-i3bar-replacement-polybar)
    - [Scripts for i3bar/i3status](#user-content-scripts-for-i3bari3status)
    - [Status for i3+dzen2 [1]](#user-content-status-for-i3dzen2-1)
    - [Status for i3+dzen2 [2]](#user-content-status-for-i3dzen2-2)
-   - [i3blocks](#i3blocks)
+   - [i3blocks](#user-content-i3blocks)
+   - [lynks--](#user-content-lynks--)
+   - [polybar](#user-content-polybar)
 - [Vim syntax for i3 config](#user-content-vim-syntax-for-i3-config)
 - [Scratchpad manager](#scratchpad-manager)
 
@@ -203,25 +203,6 @@ In [Jure Ziberna i3-py/examples](https://github.com/ziberna/i3-py/tree/master/ex
 you can find a script called `wsbar.py` which replaces an original `wsbar` from the i3 repository.
 The main difference -- this script is written in Python.
 
-### `i3bar` replacement (lynks--) ###
-
-[lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
-functionality of i3statys.  It has transparency by default, confiuration is set via config file.
-The project in its early stages but is being actively developed.  Here is a default
-liefbar screenshot:
-
-![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
-
-### `i3bar` replacement (polybar) ###
-[Michael Carlberg](https://github.com/jaagr) created a tool called
-[polybar](https://github.com/jaagr/polybar) for creating custom status bars.  It comes with a set
-of modules that can be turned on and off in the config file to customize the look of a status bar,
-similarly to conky.  The status bar is very configurable and a number of custom user modules are
-available.  Note that one can always pipe a custom command in the bar.  The tool and modules are
-written in C++.
-
-![Image](https://u.teknik.io/x32YI.png)
-
 ### Scripts for i3bar/i3status ###
 
 [enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
@@ -274,6 +255,26 @@ by the user. Blocks are updated on click, at a given interval of time or on a
 given signal, also specified by the user.  It aims to respect the i3bar protocol,
 providing customization such as text alignment, urgency, color, and more.  See their
 [wiki](https://github.com/vivien/i3blocks/wiki) for more details.
+
+### lynks-- ###
+
+[lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
+functionality of i3statys.  It has transparency by default, confiuration is set via config file.
+The project in its early stages but is being actively developed.  Here is a default
+liefbar screenshot:
+
+![Image](https://github.com/ashinkarov/i3-extras/blob/master/pictures/lifebar.png?raw=true "Lifebar screenshot")
+
+### polybar ###
+[Michael Carlberg](https://github.com/jaagr) created a tool called
+[polybar](https://github.com/jaagr/polybar) for creating custom status bars.  It comes with a set
+of modules that can be turned on and off in the config file to customize the look of a status bar,
+similarly to conky.  The status bar is very configurable and a number of custom user modules are
+available.  Note that one can always pipe a custom command in the bar.  The tool and modules are
+written in C++.
+
+![Image](https://u.teknik.io/x32YI.png)
+
 
 ## Vim syntax for i3 config ##
 
