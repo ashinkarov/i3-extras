@@ -127,6 +127,11 @@ It is fully configurable and well-mamintained.
 
 ![Image](https://davedavenport.github.io/rofi/images/rofi/window-list.png)
 
+Also, consider [these two rofi-related scripts](https://github.com/okraits/rofi-tools)
+to apply colorscheme from i3 config file to rofi, and to create a shutdown menu that
+can be used as a replacement for nagbar.
+
+
 ## Nagbar replacements ##
 
 ### Nagbar replacement (i3-exit) [1] ###
