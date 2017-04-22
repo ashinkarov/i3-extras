@@ -17,7 +17,7 @@ get some more stuff from you guys!
 ## Table of contents ##
 
 - [Patches](#user-content-patches)
-   - [Title of the focused windows](#user-content-title-of-the-focused-window)
+   - [Title of the focused window](#user-content-title-of-the-focused-window)
    - [Icons in i3bar](#user-content-icons-in-i3bar)
    - [Higher optimisation level](#user-content-higher-optimisation-level)
    - [Patches for size, borders, cwd](#user-content-patches-for-size-borders-cwd)
