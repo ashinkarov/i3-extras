@@ -125,7 +125,7 @@ new file mode 100644
 index 0000000..ea99ffa
 --- /dev/null
 +++ b/i3bar/src/xbm_image.c
-@@ -0,0 +1,278 @@
+@@ -0,0 +1,256 @@
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -133,34 +133,6 @@ index 0000000..ea99ffa
 +#include <stdbool.h>
 +
 +#include "xbm_image.h"
-+
-+#if FILENAME_CHECKING
-+/* Assume that file is called xxx.xbm, get xxx out of the filename
-+   for furhter validation during parsing.  */
-+static char *
-+validate_fname (char *  fname)
-+{
-+    char *  dot = strrchr (fname, '.');
-+    char *  slash = strrchr (fname, '/');
-+    char *  ret = NULL;
-+    unsigned sz = 0;
-+
-+    if (NULL == dot)
-+        return NULL;
-+
-+    if (0 != strncmp (dot, ".xbm", 4))
-+        return NULL;
-+
-+    if (slash)
-+        fname = slash + 1;
-+
-+    sz = dot - fname;
-+    ret = malloc (sz + 1);
-+    strncpy (ret, fname, sz);
-+    ret[sz] = 0;
-+    return ret;
-+}
-+#endif
 +
 +static char *
 +read_id (FILE *  f)
@@ -288,8 +260,10 @@ index 0000000..ea99ffa
 +            return false;
 +
 +        img->height = sz;
-+    } else
++    } else {
++        free (wh);
 +        return false;
++    }
 +
 +    return true;
 +}
@@ -315,8 +289,10 @@ index 0000000..ea99ffa
 +
 +    for (i = 0; i < sz; i++) {
 +        unsigned value;
-+        if (fscanf (f, "%x", &value) < 1 || value > 255)
++        if (fscanf (f, "%x", &value) < 1 || value > 255) {
++            free (data);
 +            return false;
++        }
 +
 +        data[i] = (char)value;
 +        skip_spaces (f);
@@ -367,6 +343,8 @@ index 0000000..ea99ffa
 +out:
 +    if (f)
 +        fclose (f);
++    if (img)
++        xbm_free (img);
 +
 +    return NULL;
 +}
@@ -437,7 +415,7 @@ index 11a017c..9c1801e 100644
      }
  
      /* If the statusline is bigger than our screen we need to make sure that
-@@ -245,8 +251,42 @@ void refresh_statusline(bool use_short_text) {
+@@ -245,8 +251,43 @@ void refresh_statusline(bool use_short_text) {
      /* Draw the text of each block. */
      uint32_t x = 0;
      TAILQ_FOREACH(block, &statusline_head, blocks) {
@@ -474,6 +452,7 @@ index 11a017c..9c1801e 100644
 +
 +            xcb_image_put (conn, statusline_pm, statusline_ctx,
 +                           img, x, 3 + (font.height - block->icon->height)/2, 0);
++            free (img->data);
 +            xcb_image_destroy (img);
 +            x += block->icon->width + 5;
 +        }
@@ -481,7 +460,7 @@ index 11a017c..9c1801e 100644
          uint32_t fg_color;
  
          /* If this block is urgent, draw it with the defined color and border. */
-@@ -431,6 +471,10 @@ void handle_button(xcb_button_press_event_t *event) {
+@@ -431,6 +472,10 @@ void handle_button(xcb_button_press_event_t *event) {
                  last_block_x = block_x;
                  block_x += block->width + block->x_offset + block->x_append + get_sep_offset(block) + sep_offset_remainder;
  
