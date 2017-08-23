@@ -123,7 +123,7 @@ on how to use the patch as well as suggestions for further improvements.
 Sean Pringle's [rofi](https://davedavenport.github.io/rofi/) is a generic very powerful
 [dmenu](http://tools.suckless.org/dmenu/)-like tool that can be used for all kinds of
 custom launchers, e.g. window switching, running commands, ssh sessions, etc.
-It is fully configurable and well-mamintained.
+It is fully configurable and well-maintained.
 
 ![Image](https://davedavenport.github.io/rofi/images/rofi/window-list.png)
 
@@ -226,7 +226,7 @@ The main difference -- this script is written in Python.
 
 [enkore](https://github.com/enkore) is maintaining a python framework called [i3pystatus](https://github.com/enkore/i3pystatus) that allows configure an output that can be
 piped into i3bar.  You can do a very similar thing using conky, however here the tool is tailor-made
-for i3bar.  Its modular design allows to contibute fuctionality in the form of modules which can be
+for i3bar.  Its modular design allows to contribute functionality in the form of modules which can be
 imported later in the output-generator.
 
 [py3status](https://github.com/ultrabug/py3status) has a similiar name, but uses a different
@@ -278,7 +278,7 @@ providing customization such as text alignment, urgency, color, and more.  See t
 ### lynks-- ###
 
 [lynks--](https://github.com/lynks--) is maintaining an i3bar replacement called [lifebar](https://github.com/lynks--/lifebar).  This is a i3bar-like panel combined with
-functionality of i3statys.  It has transparency by default, confiuration is set via config file.
+functionality of i3statys.  It has transparency by default, configuration is set via config file.
 The project in its early stages but is being actively developed.  Here is a default
 liefbar screenshot:
 
