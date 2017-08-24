@@ -1,0 +1,476 @@
+From 9334bc0b299aa970eac4bde235e6e43c05e49648 Mon Sep 17 00:00:00 2001
+From: Artem Shinkarov <artyom.shinkaroff@gmail.com>
+Date: Tue, 28 Apr 2015 14:25:01 +0100
+Subject: [PATCH 1/2] Supporting *.xbm icons in i3bar.
+
+Very often in order to display non-default information in the status bar
+it comes handy to use icons near the text for aesthetic reasons and for
+faster navigation.  XBM bitmaps is a very simple format to store pixel
+maps, and this patch allows to specify in the i3bar block two additional
+fields: icon, and icon_color.  Icon field contains a path to the *.xbm
+file, and the icon_color -- colour to use when drawing the icon.
+
+XBM file parsing is written by hands, as Xlib implementation is not
+that easy to integrate in the xcb environment.
+
+People who contributed:
+
+    * Artem Shinkarov
+      Original patch.
+
+    * woho (https://github.com/woho)
+      Fixed icon coloring problem on Arch Linux.
+
+    * soulofmachines (https://github.com/soulofmachines)
+      Fixed click event, making sure it considers the icon if present.
+---
+ common.mk                 |   2 +
+ i3bar/include/common.h    |   4 +
+ i3bar/include/xbm_image.h |  14 +++
+ i3bar/src/child.c         |  11 ++
+ i3bar/src/xbm_image.c     | 278 ++++++++++++++++++++++++++++++++++++++++++++++
+ i3bar/src/xcb.c           |  48 +++++++-
+ 6 files changed, 355 insertions(+), 2 deletions(-)
+ create mode 100644 i3bar/include/xbm_image.h
+ create mode 100644 i3bar/src/xbm_image.c
+
+diff --git a/common.mk b/common.mk
+index c568fb6..dfa2731 100644
+--- a/common.mk
++++ b/common.mk
+@@ -83,8 +83,10 @@ ldflags_for_lib = $(shell $(PKG_CONFIG) --exists 2>/dev/null $(1) && $(PKG_CONFI
+ # XCB common stuff
+ XCB_CFLAGS  := $(call cflags_for_lib, xcb)
+ XCB_CFLAGS  += $(call cflags_for_lib, xcb-event)
++XCB_CFLAGS  += $(call cflags_for_lib, xcb-image)
+ XCB_LIBS    := $(call ldflags_for_lib, xcb,xcb)
+ XCB_LIBS    += $(call ldflags_for_lib, xcb-event,xcb-event)
++XCB_LIBS    += $(call ldflags_for_lib, xcb-image,xcb-image)
+ ifeq ($(shell $(PKG_CONFIG) --exists xcb-util 2>/dev/null || echo 1),1)
+ XCB_CFLAGS  += $(call cflags_for_lib, xcb-atom)
+ XCB_CFLAGS  += $(call cflags_for_lib, xcb-aux)
+diff --git a/i3bar/include/common.h b/i3bar/include/common.h
+index 90da938..2bec087 100644
+--- a/i3bar/include/common.h
++++ b/i3bar/include/common.h
+@@ -12,6 +12,7 @@
+ #include <xcb/xproto.h>
+ #include "libi3.h"
+ #include "queue.h"
++#include "xbm_image.h"
+ 
+ typedef struct rect_t rect;
+ 
+@@ -47,6 +48,9 @@ struct status_block {
+ 
+     blockalign_t align;
+ 
++    struct xbm_image *icon;
++    char *icon_color;
++
+     bool urgent;
+     bool no_separator;
+     bool is_markup;
+diff --git a/i3bar/include/xbm_image.h b/i3bar/include/xbm_image.h
+new file mode 100644
+index 0000000..3c01c84
+--- /dev/null
++++ b/i3bar/include/xbm_image.h
+@@ -0,0 +1,14 @@
++#ifndef __XBM_IMAGE_H__
++#define __XBM_IMAGE_H__
++
++struct xbm_image {
++    int width, height;
++    char *  id;
++    char *  data;
++};
++
++
++struct xbm_image *  xbm_from_file (char *);
++void xbm_free (struct xbm_image *);
++
++#endif /* __XBM_IMAGE_H__  */
+diff --git a/i3bar/src/child.c b/i3bar/src/child.c
+index e5ce209..569093d 100644
+--- a/i3bar/src/child.c
++++ b/i3bar/src/child.c
+@@ -75,6 +75,8 @@ static void clear_statusline(struct statusline_head *head, bool free_resources)
+             FREE(first->name);
+             FREE(first->instance);
+             FREE(first->min_width_str);
++            FREE(first->icon_color);
++            xbm_free (first->icon);
+         }
+ 
+         TAILQ_REMOVE(head, first, blocks);
+@@ -209,6 +211,15 @@ static int stdin_string(void *context, const unsigned char *val, size_t len) {
+         ctx->block.is_markup = (len == strlen("pango") && !strncasecmp((const char *)val, "pango", strlen("pango")));
+         return 1;
+     }
++    if (strcasecmp(ctx->last_map_key, "icon") == 0) {
++        char * s;
++        sasprintf(&s, "%.*s", len, val);
++        ctx->block.icon = xbm_from_file(s);
++        FREE(s);
++    }
++    if (strcasecmp(ctx->last_map_key, "icon_color") == 0) {
++        sasprintf(&(ctx->block.icon_color), "%.*s", len, val);
++    }
+     if (strcasecmp(ctx->last_map_key, "align") == 0) {
+         if (len == strlen("center") && !strncmp((const char *)val, "center", strlen("center"))) {
+             ctx->block.align = ALIGN_CENTER;
+diff --git a/i3bar/src/xbm_image.c b/i3bar/src/xbm_image.c
+new file mode 100644
+index 0000000..ea99ffa
+--- /dev/null
++++ b/i3bar/src/xbm_image.c
+@@ -0,0 +1,256 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <ctype.h>
++#include <stdbool.h>
++
++#include "xbm_image.h"
++
++static char *
++read_id (FILE *  f)
++{
++    unsigned sz = 2, ptr = 0;
++    char * data = malloc (sz);
++    int c;
++
++    c = fgetc (f);
++    if (isalpha (c) || c == '_')
++        data[ptr++] = c;
++    else
++        goto out;
++
++    while (true) {
++        c = fgetc (f);
++        if (ptr == sz - 1)
++            data = realloc (data, sz *= 2);
++
++        if (isalnum (c) || c == '_')
++            data[ptr++] = c;
++        else {
++            ungetc (c, f);
++            break;
++        }
++    }
++
++    data[ptr] = '\0';
++    return data;
++
++out:
++    if (data)
++        free (data);
++
++    return NULL;
++}
++
++
++static bool
++read_string (FILE *  f, const char *  s)
++{
++    while (*s != '\0') {
++        int c = fgetc (f);
++        if (c == EOF || c != *s) {
++            ungetc (c, f);
++            return false;
++        }
++        s++;
++    }
++
++    return true;
++}
++
++static bool
++skip_spaces (FILE *  f)
++{
++    int c;
++    while (isspace (c = fgetc (f)) && c != EOF)
++        ;
++
++    ungetc (c, f);
++    return true;
++}
++
++static inline bool
++string_ends_with (const char *  s, const char *  postfix)
++{
++    return strlen (s) > strlen (postfix)
++    && strncmp (s + strlen (s) - strlen (postfix),
++                postfix, strlen (postfix)) == 0;
++}
++
++#define READ_WORD_EAT_SPACES(file, word)    \
++do {                                            \
++    if (!read_string (file, word))            \
++        return false;                            \
++    skip_spaces (file);                            \
++} while (0)
++
++
++static bool
++read_define (FILE *  f, struct xbm_image *  img)
++{
++    unsigned sz;
++    char *  wh;
++
++    READ_WORD_EAT_SPACES (f, "define");
++
++    /* read the <id>_width variable, and save <id> for
++       later validation in the img.  */
++    if (NULL == (wh = read_id (f)))
++        return false;
++
++    if (string_ends_with (wh, "_width")) {
++        if (!img->id) {
++            unsigned idsz = strlen (wh) - strlen ("_width");
++            img->id = malloc (idsz+1);
++            strncpy (img->id, wh, idsz);
++            img->id[idsz] = '\0';
++        } else if (0 != strncmp (img->id, wh, strlen (img->id))) {
++            free (wh);
++            return false;
++        }
++
++        free (wh);
++        skip_spaces (f);
++        if (fscanf (f, "%u", &sz) < 1)
++            return false;
++
++        img->width = sz;
++    } else if (string_ends_with (wh, "_height")) {
++            if (!img->id) {
++            unsigned idsz = strlen (wh) - strlen ("_height");
++            img->id = malloc (idsz+1);
++            strncpy (img->id, wh, idsz);
++            img->id[idsz] = '\0';
++        } else if (0 != strncmp (img->id, wh, strlen (img->id))) {
++            free (wh);
++            return false;
++        }
++
++        free (wh);
++        skip_spaces (f);
++        if (fscanf (f, "%u", &sz) < 1)
++            return false;
++
++        img->height = sz;
++    } else {
++        free (wh);
++        return false;
++    }
++
++    return true;
++}
++
++static bool
++read_data (FILE *  f, struct xbm_image *  img)
++{
++    int sz, i;
++    char *  data;
++
++    /* size in bytes  */
++    sz = (img->width / 8 + !!(img->width % 8)) * img->height;
++
++    data = malloc (sz);
++
++    READ_WORD_EAT_SPACES (f, "tatic");
++    READ_WORD_EAT_SPACES (f, "unsigned");
++    READ_WORD_EAT_SPACES (f, "char");
++    READ_WORD_EAT_SPACES (f, img->id);
++    READ_WORD_EAT_SPACES (f, "_bits[]");
++    READ_WORD_EAT_SPACES (f, "=");
++    READ_WORD_EAT_SPACES (f, "{");
++
++    for (i = 0; i < sz; i++) {
++        unsigned value;
++        if (fscanf (f, "%x", &value) < 1 || value > 255) {
++            free (data);
++            return false;
++        }
++
++        data[i] = (char)value;
++        skip_spaces (f);
++        if (i != sz - 1)
++            READ_WORD_EAT_SPACES (f, ",");
++    }
++
++    READ_WORD_EAT_SPACES (f, "}");
++    READ_WORD_EAT_SPACES (f, ";");
++    img->data = data;
++    return true;
++}
++
++
++struct xbm_image *
++xbm_from_file (char *  fname)
++{
++    struct xbm_image *  img = NULL;
++    FILE *  f = NULL;
++    int c;
++
++    if (!(f = fopen (fname, "r")))
++        goto out;
++
++    img = malloc (sizeof (struct xbm_image));
++    img->id = NULL;
++    img->width = -1;
++    img->height = -1;
++
++    do {
++        c = fgetc (f);
++        if (c == '#') {
++            if (!read_define (f, img))
++                goto out;
++        } else if (c == 's') {
++            if (img->width == -1 || img->height == -1 || !img->id
++                ||  !read_data (f, img))
++                goto out;
++        } else if (isspace (c) || c == EOF)
++            ;
++        else
++            goto out;
++    } while (c != EOF);
++
++    fclose (f);
++    return img;
++
++out:
++    if (f)
++        fclose (f);
++    if (img)
++        xbm_free (img);
++
++    return NULL;
++}
++
++void
++xbm_free (struct xbm_image *  img)
++{
++    if (!img)
++        return;
++
++    if (img->id)
++        free (img->id);
++    if (img->data)
++        free (img->data);
++
++    free (img);
++}
++
++#ifdef TESTING
++int
++main (int argc, char *argv[])
++{
++    struct xbm_image *  img;
++    int i;
++
++    img = xbm_from_file (argv[1]);
++
++    if (img != NULL) {
++        for (i = 0; i < (img->width /8 + !!(img->width % 8)) * img->height; i++)
++            printf ("%x, ", (unsigned char)img->data[i]);
++
++        xbm_free (img);
++    }
++
++    return EXIT_SUCCESS;
++}
++#endif
+diff --git a/i3bar/src/xcb.c b/i3bar/src/xcb.c
+index 11a017c..9c1801e 100644
+--- a/i3bar/src/xcb.c
++++ b/i3bar/src/xcb.c
+@@ -11,6 +11,7 @@
+ #include <xcb/xkb.h>
+ #include <xcb/xproto.h>
+ #include <xcb/xcb_aux.h>
++#include <xcb/xcb_image.h>
+ 
+ #ifdef XCB_COMPAT
+ #include "xcb_compat.h"
+@@ -200,7 +201,7 @@ void refresh_statusline(bool use_short_text) {
+             block->full_text = i3string_copy(block->short_text);
+         }
+ 
+-        if (i3string_get_num_bytes(block->full_text) == 0)
++        if (i3string_get_num_bytes(block->full_text) == 0 && block->icon == NULL)
+             continue;
+ 
+         block->width = predict_text_width(block->full_text);
+@@ -230,6 +231,11 @@ void refresh_statusline(bool use_short_text) {
+             statusline_width += block->sep_block_width;
+ 
+         statusline_width += block->width + block->x_offset + block->x_append;
++
++        /* Add some space between the text and the icon. */
++        if (block->icon)
++            statusline_width += block->icon->width + 5;
++
+     }
+ 
+     /* If the statusline is bigger than our screen we need to make sure that
+@@ -245,8 +251,43 @@ void refresh_statusline(bool use_short_text) {
+     /* Draw the text of each block. */
+     uint32_t x = 0;
+     TAILQ_FOREACH(block, &statusline_head, blocks) {
+-        if (i3string_get_num_bytes(block->full_text) == 0)
++        if (i3string_get_num_bytes(block->full_text) == 0 && block->icon == NULL)
+             continue;
++
++        if (block->icon != NULL) {
++            xcb_image_t *  img;
++
++            img = xcb_image_create_native (conn, block->icon->width,
++                                           block->icon->height,
++                                           XCB_IMAGE_FORMAT_XY_BITMAP,
++                                           1, NULL, ~0, NULL);
++
++            img->data = malloc (img->size);
++            memset (img->data, 0, img->size);
++
++            for (int i = 0; i < block->icon->height; i++)
++                for (int j = 0; j < block->icon->width; j++) {
++                    unsigned pos = (img->width /8 + !!(img->width % 8))*i + j/8;
++                    bool p = !!(block->icon->data[pos] & (1 << (j%8)));
++                    xcb_image_put_pixel (img, j, i, p);
++                }
++
++            uint32_t mask = XCB_GC_FOREGROUND | XCB_GC_BACKGROUND;
++            if (block->icon_color) {
++                uint32_t values[] = { get_colorpixel(block->icon_color), colors.bar_bg };
++                xcb_change_gc(xcb_connection, statusline_ctx, mask, values);
++            } else {
++                uint32_t values[] = { colors.bar_fg, colors.bar_bg };
++                xcb_change_gc(xcb_connection, statusline_ctx, mask, values);
++            }
++
++            xcb_image_put (conn, statusline_pm, statusline_ctx,
++                           img, x, 3 + (font.height - block->icon->height)/2, 0);
++            free (img->data);
++            xcb_image_destroy (img);
++            x += block->icon->width + 5;
++        }
++
+         uint32_t fg_color;
+ 
+         /* If this block is urgent, draw it with the defined color and border. */
+@@ -431,6 +472,10 @@ void handle_button(xcb_button_press_event_t *event) {
+                 last_block_x = block_x;
+                 block_x += block->width + block->x_offset + block->x_append + get_sep_offset(block) + sep_offset_remainder;
+ 
++                /* Add icon width */
++                if (block->icon)
++                    block_x += block->icon->width + 5;
++
+                 if (x <= block_x && x >= last_block_x) {
+                     send_block_clicked(event->detail, block->name, block->instance, event->root_x, event->root_y);
+                     return;
+-- 
+2.3.6
+
