@@ -152,7 +152,7 @@ Here is a picture of how it looks like:
 
 ### Nagbar replacement (i3-exit) [2] ###
 
-Here is [another version of i3-exit] (http://github.com/uranix/i3-settings/blob/master/i3-exit)
+Here is [another version of i3-exit](http://github.com/uranix/i3-settings/blob/master/i3-exit)
 created by [Ivan Tsybulin](https://github.com/uranix).  He uses `pygtk` with
 buttons and have much more sophisticated choices than I do.
 
