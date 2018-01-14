@@ -233,6 +233,12 @@ imported later in the output-generator.
 approach: It wraps i3status and can add additional functionality through modules. It is maintained
 by [ultrabug](https://github.com/ultrabug).
 
+[bumblebee-status](https://github.com/tobi-wan-kenobi/bumblebee-status) by
+[Tobias Witek](https://github.com/tobi-wan-kenobi) is a replacement for `i3status`
+written in python.  It has a large number of [modules](https://github.com/tobi-wan-kenobi/bumblebee-status/wiki/Available-Modules) and it doesn't require any configuration: a user only
+passes a list of modules she wants to see on the statusline, and the tool figures
+out all the details.
+
 ### Status for i3+dzen2 [1] ###
 
 [gpix13](https://github.com/gpix13) Wrote a shell script to generate the status bar.  He uses
