@@ -304,7 +304,7 @@ written in C++.
 [wrote](https://github.com/PotatoesMaster/i3-vim-syntax) a syntax file for i3
 config.
 
-In order to use it you can add `# vim:filetype=i3` as a comment to your i3 confnig
+In order to use it you can add `# vim:filetype=i3` as a comment to your i3 config
 file, or you can do it manually.  Another option is to recognise the path to the i3
 config and write an autocmd: `autocmd BufEnter *i3/config  setlocal filetype=i3`
 
