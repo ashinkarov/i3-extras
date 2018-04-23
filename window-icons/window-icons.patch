@@ -290,7 +290,7 @@ diff --git a/src/x.c b/src/x.c
 index 8d7d3dd8..4dcd2c60 100644
 --- a/src/x.c
 +++ b/src/x.c
-@@ -538,6 +538,7 @@ void x_draw_decoration(Con *con) {
+@@ -563,6 +563,7 @@
  
      /* 6: draw the title */
      int text_offset_y = (con->deco_rect.height - config.font.height) / 2;
@@ -298,9 +298,9 @@ index 8d7d3dd8..4dcd2c60 100644
  
      struct Window *win = con->window;
      if (win == NULL) {
-@@ -567,6 +568,9 @@ void x_draw_decoration(Con *con) {
-     if (win->name == NULL)
-         goto copy_pixmaps;
+@@ -589,6 +590,9 @@
+         goto after_title;
+     }
  
 +    if (win->icon)
 +        text_offset_x = 18;
@@ -308,8 +308,8 @@ index 8d7d3dd8..4dcd2c60 100644
      int mark_width = 0;
      if (config.show_marks && !TAILQ_EMPTY(&(con->marks_head))) {
          char *formatted_mark = sstrdup("");
-@@ -602,12 +606,30 @@ void x_draw_decoration(Con *con) {
-     i3String *title = con->title_format == NULL ? win->name : con_parse_title_format(con);
+@@ -628,14 +632,32 @@
+ 
      draw_util_text(title, &(parent->frame_buffer),
                     p->color->text, p->color->background,
 -                   con->deco_rect.x + logical_px(2),
@@ -317,8 +317,10 @@ index 8d7d3dd8..4dcd2c60 100644
                     con->deco_rect.y + text_offset_y,
 -                   con->deco_rect.width - mark_width - 2 * logical_px(2));
 +                   con->deco_rect.width - text_offset_x - mark_width - 2 * logical_px(2));
-     if (con->title_format != NULL)
+ 
+     if (con->title_format != NULL) {
          I3STRING_FREE(title);
+     }
  
 +    /* Draw the icon */
 +    if (win->icon) {
