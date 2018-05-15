@@ -18,8 +18,8 @@ set -e
 
 script_name=$(basename $0)
 params=$(getopt \
-         -o vnbdI:up:eflh \
-         -l version,nofork,beep,dpms,inactivity-timeout:,no-unlock-indicator,pointer:,ignore-empty-password,show-failed-attempts,logo,help \
+         -o vnbI:up:eflh \
+         -l version,nofork,beep,inactivity-timeout:,no-unlock-indicator,pointer:,ignore-empty-password,show-failed-attempts,logo,help \
          -n "$script_name" -- "$@")
 eval set -- "$params"
 # exit on bad arguments
@@ -65,9 +65,7 @@ arg_test () {
                ;;
            -n|--nofork)                
                shift;;
-           -b|--beep)              
-               shift;;
-           -d|--dpms)                  
+           -b|--beep)
                shift;;
            -I|--inactivity-timeout)
                shift
