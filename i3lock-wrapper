@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2013-2018 Artem Shinkarov <artyom.shinkaroff@gmail.com>
+# Copyright (c) 2013-2020 Artem Shinkarov <artyom.shinkaroff@gmail.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -137,13 +137,24 @@ superimpose_padlock() {
     rm "${lockimage}" "${lockimage}.png" "${lockimage}.pdf"
 }
 
+function version_gt() { 
+        test "$(printf '%s\n' "$@" | sort -V | head -n 1)" != "$1";\
+}
+
 use_logo=0
 arg_test $@
 
 file1=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 file2=$(mktemp --tmpdir i3lock-wrapper-XXXXXXXXXX.png)
 
-scrot -z -d0 "$file1"
+# As noticed by #50, scrot >=1.0 requires -o flag to overwrite
+# existing files.
+if version_gt "$(scrot --version | cut -d' ' -f3)" "0.9"; then
+        scrot -o -z -d0 "$file1"
+else
+        scrot -z -d0 "$file1"
+fi
+
 convert "$file1" -blur 0x3 "$file2"
 rm "$file1" # Remove for security
 
